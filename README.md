@@ -15,7 +15,7 @@ before
 
 (define(fib n )
 (if (<= n 1)
-0
+1
 (+ (fib  (- n 1))
 (fib (- n 2)) )))
 ```
@@ -27,7 +27,7 @@ after
 
 (define (fib n)
   (if (<= n 1)
-      0
+      1
       (+ (fib (- n 1))
          (fib (- n 2)))))
 
