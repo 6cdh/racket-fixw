@@ -24,6 +24,7 @@
     ("for/sum" 1)
     ("for/list" 1)
     ("for/fold" 2)
+    ("for/hash" 1)
     ("for" 1)
 
     ("let" 1)
@@ -39,5 +40,9 @@
     ("match" 1)
     ("match*" 1)
 
-    ("struct" 1)))
+    ("struct" 1)
+
+    ("with-output-to-file" 1)
+
+    ("module+" 1)))
 

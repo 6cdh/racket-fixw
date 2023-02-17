@@ -1,5 +1,7 @@
 #lang racket/base
 
+(provide fixw)
+
 (require syntax-color/racket-lexer
          racket/match
          racket/list
@@ -139,7 +141,7 @@
     (set! tokens (append new-toks tokens)))
   (reverse tokens))
 
-(define (fmt in)
+(define (fixw in)
   (define rules (add-rule rule/racket))
 
   (define (indenter stack)
@@ -160,10 +162,10 @@
 
   (define (process-trailing-newlines tokens)
     (define reversed (reverse tokens))
-    (reverse (cons "\n"
-                   (or (memf (λ (tok) (not (string=? tok "\n")))
-                             reversed)
-                       '()))))
+    (reverse (append (list "\n" "\n")
+                     (or (memf (λ (tok) (not (string=? tok "\n")))
+                               reversed)
+                         '()))))
 
   (define (update-stack! stack prev-tok-t tok current-char-pos)
     (when (and (not (null? stack))
@@ -227,9 +229,3 @@
   (define result (rec 'open-parenthesis tokens 0 '()))
   (string-append* (process-trailing-newlines result)))
 
-(define file "example.rkt")
-(define out "out.rkt")
-(define formatted (time (fmt (open-input-file file))))
-(with-output-to-file out
-  #:exists 'replace
-  (λ () (displayln formatted)))
