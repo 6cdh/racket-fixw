@@ -227,7 +227,7 @@
   (define result (rec 'open-parenthesis tokens 0 '()))
   (string-append* (process-trailing-newlines result)))
 
-(define file "large.rkt")
+(define file "example.rkt")
 (define out "out.rkt")
 (define formatted (time (fmt (open-input-file file))))
 (with-output-to-file out
