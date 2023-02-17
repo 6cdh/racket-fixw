@@ -1,6 +1,6 @@
 # Racket fixw
 
-A Racket formatter that add/remove some spaces but respect newline.
+A Racket formatter that add/remove some whitespaces but respects newline.
 
 ## Status
 
@@ -33,6 +33,12 @@ after
 
 ```
 
+## Performance
+
+* [x] format a 5k lines file in 150ms on a 6 years old laptop
+
+The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/blob/9b202f565d85cebdf8b5bb91d013eb0ecf06cba6/racket/collects/racket/private/class-internal.rkt) in [racket/racket]() repo has almost 5k lines, so I think it's fast enough.
+
 ## Features
 
 * [x] fix indent
@@ -43,3 +49,5 @@ after
 * [ ] raco integration
 * [ ] read scmindent compatible configuration file
 * [ ] skip form that following a specified comment
+* [ ] support range formatting
+* [ ] support on type formatting
