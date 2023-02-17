@@ -51,3 +51,14 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [ ] skip form that following a specified comment
 * [ ] support range formatting
 * [ ] support on type formatting
+
+## Run
+
+```shell
+# show help
+racket main.rkt -h
+# read from stdin and output formatted text to stdout
+racket main.rkt
+# format current directory recursively
+racket main.rkt .
+```

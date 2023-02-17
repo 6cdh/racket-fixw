@@ -10,8 +10,8 @@
      #:once-each
      [("-t" "--time") "show total time to run"
                       (time-mode? #t)]
-     #:args files
-     files))
+     #:args files-or-dirs
+     files-or-dirs))
 
   (cond [(time-mode?) (time (run files))]
         [else (run files)]))
