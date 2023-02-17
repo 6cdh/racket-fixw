@@ -29,6 +29,7 @@
     ("let" 1)
     ("let*" 1)
     ("let-values" 1)
+    ("define-values" 1)
     ("when" 1)
     ("unless" 1)
     ("begin" 0)

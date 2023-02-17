@@ -28,7 +28,7 @@
    ;; it's `(` in `((fn ...))`
    [head #:mutable]
    ;; the number of current atom in current list, 0-indexed
-   ;; for example, in `(fn arg1 arg2)`, `(` is 0, `fn` is 1, `arg`1 is 2, ...
+   ;; for example, in `(fn arg1 arg2)`, `fn` is 0, `arg`1 is 1, ...
    [arg #:mutable]
    ;; char position of the opening parenthesis at it's line
    par-indent
