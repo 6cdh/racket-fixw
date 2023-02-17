@@ -43,6 +43,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 
 * [x] fix indent
 * [x] respect newline
+* [x] works for unbalanced code
 * [x] remove trailing spaces
 * [x] force only one space between two tokens unless one of them is parenthesis
 * [x] force only one empty line at the end of the file
