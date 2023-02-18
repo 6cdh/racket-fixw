@@ -66,3 +66,8 @@ raco fixw
 # format current directory recursively
 raco fixw .
 ```
+
+## :thinking: FAQ
+
+* How `fixw` indent?
+  See [indent.md](./indent.md) for details.
