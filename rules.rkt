@@ -32,6 +32,7 @@
 
     ("let" 1)
     ("let*" 1)
+    ("let*-values" 1)
     ("letrec" 1)
     ("let-values" 1)
     ("define-values" 1)
