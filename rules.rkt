@@ -12,12 +12,15 @@
 (define rule/racket
   '(("define" 1)
     ("define-syntax" 1)
+    ("define-syntax-rule" 1)
     ("define-syntaxes" 1)
     ("define-for-syntax" 1)
     ("syntax-case" 2)
     ("syntax-rules" 1)
     ("with-syntax" 1)
     ("syntax/loc" 1)
+
+    ("parameterize" 1)
 
     ("case" 1)
 
@@ -29,6 +32,7 @@
 
     ("let" 1)
     ("let*" 1)
+    ("letrec" 1)
     ("let-values" 1)
     ("define-values" 1)
     ("when" 1)
@@ -43,6 +47,7 @@
     ("struct" 1)
 
     ("with-output-to-file" 1)
+    ("with-handlers" 1)
 
     ("module+" 1)))
 
