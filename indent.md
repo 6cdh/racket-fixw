@@ -1,6 +1,6 @@
 # Indent
 
-`fixw` indenter has a basic assumption: user defined procedure is more common than macros and special forms. It will perform procedure indent by default.
+`fixw` indenter has a basic assumption: user defined procedure is more common than macros. It will perform procedure indent by default.
 
 The procedure indent look like this:
 
@@ -10,7 +10,7 @@ The procedure indent look like this:
     ...)
 ```
 
-The macros and special forms as special cases. They are assumed to be like this:
+Macros as special cases. They are assumed to be like this:
 
 ```racket
 (macro parg_1
