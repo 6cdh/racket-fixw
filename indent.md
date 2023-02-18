@@ -22,7 +22,7 @@ Macros as special cases. They are assumed to be like this:
 
 The number of `parg` of a macro is specified by a rule.
 
-For example, A rule `("func" 1)` specifies a form whose first argument is `func`, should have 1 argument, then body. So `fixw` will format `func` as this:
+For example, A rule `("func" 2)` specifies a form whose first argument is `func`, should have 2 argument, then body. So `fixw` will format `func` as this:
 
 ```racket
 (func (function-name n ...)
