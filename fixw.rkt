@@ -32,6 +32,8 @@
    ;; the number of current atom in current list, 0-indexed
    ;; for example, in `(fn arg1 arg2)`, `fn` is 0, `arg`1 is 1, ...
    [arg #:mutable]
+   ;; the opening paren token
+   paren
    ;; char position of the opening parenthesis at it's line
    par-indent
    ;; char position of the first atom at the previous line in the current list if exists
@@ -151,14 +153,19 @@
           [(memq (Token-type (StackFrame-head (car stack)))
                  '(constant string keyword prefix))
            (+ 1 (StackFrame-par-indent (car stack)))]
+          [(string-suffix? (Token-text (StackFrame-paren (car stack))) "[")
+           (+ 1 (StackFrame-par-indent (car stack)))]
+          [(memq (Token-type (StackFrame-head (car stack)))
+                 '(open-parenthesis open-list-literal))
+           (+ 1 (StackFrame-par-indent (car stack)))]
           [(and (hash-has-key? rules (Token-text (StackFrame-head (car stack))))
                 (>= (- (StackFrame-arg (car stack)) 1)
                     (hash-ref rules (Token-text (StackFrame-head (car stack))))))
            (+ 2 (StackFrame-par-indent (car stack)))]
-          [(= -1 (StackFrame-last-indent (car stack)))
-           (+ 1 (StackFrame-par-indent (car stack)))]
+          [(not (= -1 (StackFrame-last-indent (car stack))))
+           (StackFrame-last-indent (car stack))]
           [else
-           (StackFrame-last-indent (car stack))]))
+           (+ 2 (StackFrame-par-indent (car stack)))]))
 
   (define (process-trailing-newlines tokens)
     (define reversed (reverse tokens))
@@ -217,7 +224,7 @@
                     (cdr stack))]
                [(_ (or 'open-parenthesis 'open-list-literal))
                 (update-stack! stack prev-tok-t tok current-char-pos)
-                (cons (StackFrame tok 0 current-char-pos -1) stack)]
+                (cons (StackFrame tok 0 tok current-char-pos -1) stack)]
                [(_ _)
                 (update-stack! stack prev-tok-t tok current-char-pos)
                 stack]))
