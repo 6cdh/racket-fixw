@@ -10,5 +10,5 @@
 (define license '(MIT))
 
 (define raco-commands
-  '(("fixw" fixw/raco "fix whitespaces use fixw" #f)))
+  '(("fixw" fixw/raco "fix whitespaces use fixw" 1)))
 

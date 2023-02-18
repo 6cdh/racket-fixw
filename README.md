@@ -47,7 +47,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [x] remove trailing spaces
 * [x] force only one space between two tokens unless one of them is parenthesis
 * [x] force only one empty line at the end of the file
-* [ ] raco integration
+* [x] raco integration
 * [ ] read scmindent compatible configuration file
 * [ ] skip form that following a specified comment
 * [ ] support range formatting
@@ -56,10 +56,12 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 ## :rocket: Run
 
 ```shell
+# install
+raco pkg install
 # show help
-racket main.rkt -h
+raco fixw -h
 # read from stdin and output formatted text to stdout
-racket main.rkt
+raco fixw
 # format current directory recursively
-racket main.rkt .
+raco fixw .
 ```

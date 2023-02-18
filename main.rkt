@@ -4,7 +4,7 @@
   (require racket/cmdline)
   (require "cli.rkt")
   (define time-mode? (make-parameter #f))
-  (define files
+  (define paths
     (command-line
      #:program "fixw"
      #:once-each
@@ -13,6 +13,6 @@
      #:args files-or-dirs
      files-or-dirs))
 
-  (cond [(time-mode?) (time (run files))]
-        [else (run files)]))
+  (cond [(time-mode?) (time (run paths))]
+        [else (run paths)]))
 
