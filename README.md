@@ -35,7 +35,7 @@ after
 
 ## :airplane: Performance
 
-* [x] format a 5k lines file in 150ms on a 6 years old laptop
+* [x] format a 5k lines file in 100ms on a 6 years old laptop
 
 The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/blob/9b202f565d85cebdf8b5bb91d013eb0ecf06cba6/racket/collects/racket/private/class-internal.rkt) in [racket/racket](https://github.com/racket/racket) repo has almost 5k lines, so I think it's fast enough.
 

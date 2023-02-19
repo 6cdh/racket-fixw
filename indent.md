@@ -30,32 +30,35 @@ For example, A rule `("func" 2)` specifies a form whose first argument is `func`
   body ...)
 ```
 
-Except these two strategy, `fixw` also use these heuristics strategies:
+Except these two strategy, `fixw` also use some heuristics strategies. Here are the full details:
 
-* If the first argument of a list is a number, boolean, character, string, or keyword literal, it will format it as a list:
+* If the head element of the form need indent, it would have 1 extra space.
   ```racket
-  (1 2 3
-   4 5 6)
+  (
+   head)
   ```
-* If the opening parenthese ends with `[` or not a normal parenthese, it will format it as a list:
+* If the form is considered a list literal whose head element is a string, boolean, number, character, keyword, `#&` or the opening parenthesis is not one of `(`, `[`, `{`, all elements in this list would have same indent.
   ```racket
-  #[name1 name2
-    name3 name4]
-  #hash((...)
-        (...))
+  (1 2
+   3 4)
+  #[v1 v2
+    v3 v4]
   ```
-* If the first argument is a list, it will format it as a list:
+* If the opening parenthesis ends with `[`, the second element of this form would have same indent.
   ```racket
-  ((fn ...)
-   arg1
-   arg2)
-  (let ([...]
-        [...])
-    body ...)
+  [a
+   (expt 2 10)]
   ```
-* If only one argument of a list at its first line, other arguments will have 2 extra spaces indented:
+* If the head element is a list, the second element of this form would have same indent.
   ```racket
-  (cond
+  ([a 1]
+   [b 2])
+  ```
+* If the head element is not a list, the second element would have 2 extra spaces indented.
+  ```racket
+  (cond 
     [...])
   ```
+* If it hits a rule, it would follow the rule.
+* Otherwise, elements will follow the indent of the second element.
 

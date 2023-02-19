@@ -1,6 +1,9 @@
 #lang racket/base
 
-(provide fixw)
+(provide fixw
+         fixw/lines
+         fixw/range
+         fixw/on-type)
 
 (require syntax-color/racket-lexer
          racket/match
@@ -34,8 +37,8 @@
    [arg #:mutable]
    ;; the opening paren token
    paren
-   ;; char position of the opening parenthesis at it's line
-   par-indent
+   ;; char position of the last char of the opening parenthesis at it's line
+   par-pos
    ;; char position of the first atom at the previous line in the current list if exists
    ;; or the char position of the second element of the current list if exists
    ;; otherwise, it's -1
@@ -143,29 +146,37 @@
     (set! tokens (append new-toks tokens)))
   (reverse tokens))
 
-(define (fixw in)
+(define (fixw/tokens in interactive?)
   (define rules (add-rule rule/racket))
 
   (define (indenter stack)
-    (cond [(null? stack) 0]
-          [(= 0 (StackFrame-arg (car stack)))
-           (+ 1 (StackFrame-par-indent (car stack)))]
-          [(memq (Token-type (StackFrame-head (car stack)))
-                 '(constant string keyword prefix))
-           (+ 1 (StackFrame-par-indent (car stack)))]
-          [(string-suffix? (Token-text (StackFrame-paren (car stack))) "[")
-           (+ 1 (StackFrame-par-indent (car stack)))]
-          [(memq (Token-type (StackFrame-head (car stack)))
-                 '(open-parenthesis open-list-literal))
-           (+ 1 (StackFrame-par-indent (car stack)))]
-          [(and (hash-has-key? rules (Token-text (StackFrame-head (car stack))))
-                (>= (- (StackFrame-arg (car stack)) 1)
-                    (hash-ref rules (Token-text (StackFrame-head (car stack))))))
-           (+ 2 (StackFrame-par-indent (car stack)))]
-          [(not (= -1 (StackFrame-last-indent (car stack))))
-           (StackFrame-last-indent (car stack))]
-          [else
-           (+ 2 (StackFrame-par-indent (car stack)))]))
+    (define (hit-rule? rules head arg)
+      (and (hash-has-key? rules (Token-text head))
+           (>= (- arg 1) (hash-ref rules (Token-text head)))))
+
+    (define (list-literal? head paren)
+      (or (memq (Token-type head) '(constant string keyword prefix))
+          (memq (Token-type paren) '(open-list-literal))))
+
+    (define (guess-list-literal? paren)
+      (string-suffix? (Token-text paren) "["))
+
+    (define (head-is-list? head)
+      (memq (Token-type head) '(open-parenthesis open-list-literal)))
+
+    (match stack
+      ['() 0]
+      [(list (StackFrame _ 0 _ par-pos _) _ ...)
+       (+ 1 par-pos)]
+      [(list (StackFrame head 1 paren par-pos _) _ ...)
+       (cond [(list-literal? head paren) (+ 1 par-pos)]
+             [(guess-list-literal? paren) (+ 1 par-pos)]
+             [(head-is-list? head) (+ 1 par-pos)]
+             [else (+ 2 par-pos)])]
+      [(list (StackFrame head arg paren par-pos last-indent) _ ...)
+       (cond [(list-literal? head paren) (+ 1 par-pos)]
+             [(hit-rule? rules head arg) (+ 2 par-pos)]
+             [else last-indent])]))
 
   (define (process-trailing-newlines tokens)
     (define reversed (reverse tokens))
@@ -198,7 +209,7 @@
 
            (define spaces-before
              (match* [prev-tok-t tok-t]
-               [('newline 'newline) 0] ; TODO: indent at interactive mode
+               [('newline 'newline) (if interactive? (indenter stack) 0)]
                [(_ 'newline) 0] ; no trailing spaces
                [('newline _) (indenter stack)]
                [('open-parenthesis _) 0]
@@ -224,7 +235,7 @@
                     (cdr stack))]
                [(_ (or 'open-parenthesis 'open-list-literal))
                 (update-stack! stack prev-tok-t tok current-char-pos)
-                (cons (StackFrame tok 0 tok current-char-pos -1) stack)]
+                (cons (StackFrame tok 0 tok (sub1 next-char-pos) -1) stack)]
                [(_ _)
                 (update-stack! stack prev-tok-t tok current-char-pos)
                 stack]))
@@ -234,5 +245,33 @@
                    (rec tok-t (cdr tokens) next-char-pos new-stack))]))
 
   (define result (rec 'open-parenthesis tokens 0 '()))
-  (string-append* (process-trailing-newlines result)))
+  (process-trailing-newlines result))
+
+(define (fixw in)
+  (string-append* (fixw/tokens in #f)))
+
+(define (fixw/lines in #:interactive? [interactive? #f])
+  (define toks (fixw/tokens in interactive?))
+  (define lines-lst
+    (let ([res '(())])
+      (for ([tok toks])
+        (cond [(string=? tok *newline*) (set! res (list-set res 0
+                                                            (cons tok (car res))))
+                                        (set! res (cons '() res))]
+              [else (set! res (list-set res 0
+                                        (cons tok (car res))))]))))
+  (for/list ([line-lst lines-lst])
+    (string-append* line-lst)))
+
+(define (fixw/range in start-line end-line #:interactive? [interactive? #f])
+  (define lines (fixw/lines in #:interactive? interactive?))
+  (let loop ([i 0]
+             [lines lines])
+    (cond [(= i end-line) '()]
+          [(< i start-line) (loop (add1 i) (cdr lines))]
+          [(null? lines) (cons "" (loop (add1 i) lines))]
+          [else (cons (car lines) (loop (add1 i) (cdr lines)))])))
+
+(define (fixw/on-type in line)
+  (fixw/range in 0 (add1 line) #:interactive? #t))
 
