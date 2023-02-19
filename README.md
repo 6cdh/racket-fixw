@@ -51,8 +51,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [x] raco integration
 * [ ] read scmindent compatible configuration file
 * [ ] skip form that following a specified comment
-* [ ] support range formatting
-* [ ] support on type formatting
+* [x] support range formatting
 
 ## :rocket: Run
 

@@ -2,8 +2,7 @@
 
 (provide fixw
          fixw/lines
-         fixw/range
-         fixw/on-type)
+         fixw/range)
 
 (require syntax-color/racket-lexer
          racket/match
@@ -271,7 +270,4 @@
           [(< i start-line) (loop (add1 i) (cdr lines))]
           [(null? lines) (cons "" (loop (add1 i) lines))]
           [else (cons (car lines) (loop (add1 i) (cdr lines)))])))
-
-(define (fixw/on-type in line)
-  (fixw/range in 0 (add1 line) #:interactive? #t))
 
