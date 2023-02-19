@@ -69,15 +69,18 @@
 (define (read-tokens in)
   (define bytes-code (port->bytes in))
   (define tokens '())
+  (define on? #t)
   (for ([tok (in-port lexer (open-input-bytes bytes-code))])
     (define new-toks
       (match tok
         ;; newline
         [(list spaces 'white-space _ ...)
-         (let ([newlines (string-count spaces #\newline)])
-           (if (= newlines 0)
-               '()
-               (make-list newlines (Token *newline* 'newline))))]
+         (cond [(not on?) (list (Token spaces 'disable))]
+               [else
+                (let ([newlines (string-count spaces #\newline)])
+                  (if (= newlines 0)
+                      '()
+                      (make-list newlines (Token *newline* 'newline))))])]
 
         ;; parenthesis
         [(list opar 'parenthesis _ ...)
@@ -91,8 +94,10 @@
 
         ;; comment
         [(list cmt 'comment start end _ ...)
-         (list (Token (bytes->string/utf-8 (subbytes bytes-code (sub1 start) (sub1 end)))
-                      'comment))]
+         (define content (bytes->string/utf-8 (subbytes bytes-code (sub1 start) (sub1 end))))
+         (cond [(string-contains? content "(fixw on)") (set! on? #t)]
+               [(string-contains? content "(fixw off)") (set! on? #f)])
+         (list (Token content 'comment))]
         [(list sexp-cmt 'sexp-comment _ ...)
          (list (Token sexp-cmt 'sexp-comment))]
 
@@ -142,7 +147,11 @@
          (list (Token text 'lang))]
 
         [err (error "unknown token" err)]))
-    (set! tokens (append new-toks tokens)))
+    (set! tokens (append (if on?
+                             new-toks
+                             (map (λ (tok) (Token (Token-text tok) 'disable))
+                                  new-toks))
+                         tokens)))
   (reverse tokens))
 
 (define (fixw/tokens in interactive?)
@@ -216,6 +225,8 @@
                [('quote _) 0]
                [('prefix _) 0]
                [(_ 'close-parenthesis) 0]
+               [('disable _) 0] ; disabled
+               [(_ 'disable) 0] ; disabled
                [(_ _) 1]))
 
            (define current-char-pos (+ char-pos spaces-before))
@@ -226,7 +237,7 @@
 
            (define new-stack
              (match* [prev-tok-t tok-t]
-               [(_ (or 'newline 'comment 'sexp-comment))
+               [(_ (or 'newline 'comment 'sexp-comment 'disable))
                 stack]
                [(_ 'close-parenthesis)
                 (if (null? stack)

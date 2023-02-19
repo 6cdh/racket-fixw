@@ -50,7 +50,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [x] force only one empty line at the end of the file
 * [x] raco integration
 * [ ] read scmindent compatible configuration file
-* [ ] skip form that following a specified comment
+* [x] skip code that surrounded by special comments
 * [x] support range formatting
 
 ## :rocket: Run
@@ -69,4 +69,15 @@ raco fixw .
 ## :thinking: FAQ
 
 * How `fixw` indent?
+
   See [indent.md](./indent.md) for details.
+
+* How to turn off formatter temporarily?
+
+  Use `(fixw off)` in comment to turn off it, `(fixw on)` to enable it again. For example,
+
+  ```racket
+  ;; (fixw off)
+  ;; your code here
+  ;; (fixw on)
+  ```
