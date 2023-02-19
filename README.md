@@ -4,7 +4,7 @@ A Racket formatter that add/remove some whitespaces but respects newline.
 
 ## :battery: Status
 
-Under development
+It should work as expected, except some rules for macros and special forms are missing, and some extra features not implemented.
 
 ## :printer: Example
 
