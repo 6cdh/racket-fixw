@@ -9,6 +9,7 @@
          racket/list
          racket/string
          racket/port
+         racket/hash
          "rules.rkt")
 
 (define (lexer in)
@@ -93,7 +94,7 @@
          (list (Token restpar 'open-list-literal))]
 
         ;; comment
-        [(list cmt 'comment start end _ ...)
+        [(list _ 'comment start end _ ...)
          (define content (bytes->string/utf-8 (subbytes bytes-code (sub1 start) (sub1 end))))
          (cond [(string-contains? content "(fixw on)") (set! on? #t)]
                [(string-contains? content "(fixw off)") (set! on? #f)])
@@ -146,6 +147,9 @@
                     (string-prefix? text "#!"))
          (list (Token text 'lang))]
 
+        [(list text 'other _ ...)
+         (list (Token text 'other))]
+
         [err (error "unknown token" err)]))
     (set! tokens (append (if on?
                              new-toks
@@ -154,8 +158,10 @@
                          tokens)))
   (reverse tokens))
 
-(define (fixw/tokens in interactive?)
-  (define rules (add-rule rule/racket))
+(define (fixw/tokens in user-rules interactive?)
+  (define builtin-rules (add-rule rule/racket))
+  (define rules (hash-union builtin-rules (or user-rules (hasheq))
+                            #:combine/key (λ (k builtin user) user)))
 
   (define (indenter stack)
     (define (hit-rule? rules head arg)
@@ -257,11 +263,11 @@
   (define result (rec 'open-parenthesis tokens 0 '()))
   (process-trailing-newlines result))
 
-(define (fixw in)
-  (string-append* (fixw/tokens in #f)))
+(define (fixw in rules #:interactive? [interactive? #f])
+  (string-append* (fixw/tokens in rules interactive?)))
 
-(define (fixw/lines in #:interactive? [interactive? #f])
-  (define toks (fixw/tokens in interactive?))
+(define (fixw/lines in rules #:interactive? [interactive? #f])
+  (define toks (fixw/tokens in rules interactive?))
   (define lines-lst
     (let ([res '(())])
       (for ([tok toks])
@@ -273,8 +279,8 @@
   (for/list ([line-lst lines-lst])
     (string-append* line-lst)))
 
-(define (fixw/range in start-line end-line #:interactive? [interactive? #f])
-  (define lines (fixw/lines in #:interactive? interactive?))
+(define (fixw/range in rules start-line end-line #:interactive? [interactive? #f])
+  (define lines (fixw/lines in rules #:interactive? interactive?))
   (let loop ([i 0]
              [lines lines])
     (cond [(= i end-line) '()]

@@ -1,8 +1,8 @@
 #lang racket/base
 
 (module+ main
-  (require racket/cmdline)
-  (require "cli.rkt")
+  (require racket/cmdline
+           "cli.rkt")
   (define time-mode? (make-parameter #f))
   (define paths
     (command-line
@@ -13,6 +13,6 @@
       #:args files-or-dirs
       files-or-dirs))
 
-  (cond [(time-mode?) (time (run paths))]
-        [else (run paths)]))
+  (cond [(time-mode?) (time (run/user paths))]
+        [else (run/user paths)]))
 

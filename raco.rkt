@@ -13,6 +13,6 @@
     #:args files-or-dirs
     files-or-dirs))
 
-(cond [(time-mode?) (time (run paths))]
-      [else (run paths)])
+(cond [(time-mode?) (time (run/user paths))]
+      [else (run/user paths)])
 
