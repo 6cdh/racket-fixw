@@ -86,3 +86,8 @@ raco fixw .
 
   For a `.rkt` file, `fixw` will read `.lispwords` at its same directory, if not found, then its parent directory, ...
   Buitin rules are always used, user config can override the builtin rules.
+  
+## See also
+  
+* [fmt](https://github.com/sorawee/fmt) - a Racket formatter that calculate optimal layout
+* [scmindent](https://github.com/ds26gte/scmindent) - a general lisp indenter
