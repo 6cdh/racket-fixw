@@ -4,7 +4,7 @@ A Racket formatter that add/remove some whitespaces but respects newline.
 
 ## :battery: Status
 
-It should work as expected, except some rules for macros and special forms are missing, and some extra features not implemented.
+It should work as expected, except some rules for macros and special forms are missing.
 
 ## :printer: Example
 
@@ -49,7 +49,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [x] force only one space between two tokens with several exceptions
 * [x] force only one empty line at the end of the file
 * [x] raco integration
-* [ ] read scmindent compatible configuration file
+* [x] read [scmindent](https://github.com/ds26gte/scmindent) compatible configuration file
 * [x] skip code that surrounded by special comments
 * [x] support range formatting
 
@@ -81,3 +81,8 @@ raco fixw .
   ;; your code here
   ;; (fixw on)
   ```
+
+* How `fixw` read config file?
+
+  For a `.rkt` file, `fixw` will read `.lispwords` at its same directory, if not found, then its parent directory, ...
+  Buitin rules are always used, user config can override the builtin rules.
