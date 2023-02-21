@@ -10,7 +10,7 @@
       line))
 
   (define original (port->string (open-input-file "expect.rkt")))
-  (define formatted (fixw (open-input-string original)))
+  (define formatted (fixw (open-input-string original) #f))
   (for ([l1 (string->lines formatted)]
         [l2 (string->lines original)])
     (check-equal? l1 l2)))
