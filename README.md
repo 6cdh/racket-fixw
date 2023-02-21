@@ -57,7 +57,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 
 ```shell
 # install
-raco pkg install
+raco pkg install fixw
 # show help
 raco fixw -h
 # read from stdin and output formatted text to stdout
@@ -66,26 +66,9 @@ raco fixw
 raco fixw .
 ```
 
-## :thinking: FAQ
+## :thinking: docs
 
-* How `fixw` indent?
-
-  See [indent.md](./indent.md) for details.
-
-* How to turn off formatter temporarily?
-
-  Use `(fixw off)` in comment to turn off it, `(fixw on)` to enable it again. For example,
-
-  ```racket
-  ;; (fixw off)
-  ;; your code here
-  ;; (fixw on)
-  ```
-
-* How `fixw` read config file?
-
-  For a `.rkt` file, `fixw` will read `.lispwords` at its same directory, if not found, then its parent directory, ...
-  Buitin rules are always used, user config can override the builtin rules.
+See [online docs](https://docs.racket-lang.org/fixw/index.html).
   
 ## See also
   
