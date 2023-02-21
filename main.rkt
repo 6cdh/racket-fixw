@@ -1,5 +1,11 @@
 #lang racket/base
 
+(provide fixw
+         fixw/lines
+         fixw/range)
+
+(require "fixw.rkt")
+
 (module+ main
   (require racket/cmdline
            "cli.rkt")
