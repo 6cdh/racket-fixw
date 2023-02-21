@@ -7,7 +7,7 @@
 ;; https://semver.org/
 (define version "0.1.0")
 (define pkg-authors '(6cdh))
-(define license '(MIT))
+(define license '(Apache-2.0 OR MIT))
 
 (define raco-commands
   '(("fixw" fixw/raco "fix whitespaces use fixw" 1)))
