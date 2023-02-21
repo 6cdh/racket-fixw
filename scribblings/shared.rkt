@@ -107,19 +107,19 @@
   (syntax-case stx (col)
     [(_ (col x ...) ...)
      #`(begin
-	 (define stuff (list (list (paragraph plain (format "~a" 'x)) ...) ...))
-	 (table (sty (length stuff) 200)
-	        (apply map (compose make-flow list) stuff)))]))
+         (define stuff (list (list (paragraph plain (format "~a" 'x)) ...) ...))
+         (table (sty (length stuff) 200)
+                (apply map (compose make-flow list) stuff)))]))
 
 (define-syntax (row-table stx)
   (syntax-case stx (row)
     [(row-table (row titles ...) (row char kind example) ...)
      #`(row-table/proc
-        (list
-         (list (paragraph plain (format "~a" 'titles)) ...)
-         (list (paragraph plain (litchar (~a 'char)))
-               (paragraph plain (format "~a" 'kind))
-               (paragraph plain (litchar (~a 'example)))) ...))]))
+         (list
+           (list (paragraph plain (format "~a" 'titles)) ...)
+           (list (paragraph plain (litchar (~a 'char)))
+                 (paragraph plain (format "~a" 'kind))
+                 (paragraph plain (litchar (~a 'example)))) ...))]))
 
 (define (row-table/proc stuff)
   (table (sty (length (car stuff)) 200 #:valign? #f)
@@ -133,6 +133,7 @@
                                                                     (list)))))))
   ;; -- in --
   (style #f
-    (list
-     (attributes '((border . "1") (cellpadding . "1")))
-     (table-columns (make-list columns space)))))
+         (list
+           (attributes '((border . "1") (cellpadding . "1")))
+           (table-columns (make-list columns space)))))
+

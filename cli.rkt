@@ -9,7 +9,8 @@
          racket/contract)
 
 (define (run/user path-strings)
-  (cond [(null? path-strings) (define output (fixw (current-input-port)))
+  (cond [(null? path-strings) (define output (fixw (current-input-port)
+                                                   (read-config/rec (current-directory))))
                               (display output)]
         [else
          (for ([p path-strings])
