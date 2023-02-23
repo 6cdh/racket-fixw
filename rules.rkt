@@ -83,7 +83,7 @@
     (for*/last 1)
     (for*/fold 2)
     (for*/foldr 2)
-    
+
     (for/fold/derived 3)
     (for*/fold/derived 3)
     (for/foldr/derived 3)
@@ -152,7 +152,7 @@
     (with-method 1)
     (define-serializable-class* 1)
     (define-serializable-class 1)
-    
+
     ;; 7 Units
     (define-signature 1)
     (define-values/invoke-unit 1)
@@ -181,7 +181,7 @@
     (define/final-prop 1)
     (define/subexpression-pos-prop 1)
     (define-opt/c 1)
-    
+
     ;; 9 Pattern Matching
     (match 1)
     (match* 1)
@@ -197,7 +197,7 @@
     (match-derived 2)
     (match*/derived 2)
     (struct* 1)
-    
+
     ;; 10 Control Flow
     (with-handlers 1)
     (with-handlers* 1)
@@ -205,7 +205,7 @@
     (for*/list/concurrent 1)
     (let/ec 1)
     (parameterize-break 1)
-    
+
     ;; 11 Concurrency and Parallelism
     (parameterize 1)
     (parameterize* 1)
@@ -213,7 +213,7 @@
     (for*/async 1)
     (place 1)
     (place/context 1)
-    
+
     ;; 12 Macros
     (syntax-case 2)
     (syntax-case* 3)
@@ -228,7 +228,7 @@
     (define-rename-transformer-parameter 1)
     (define/with-syntax 1)
     (with-syntax* 1)
-    
+
     ;; 13 Input and Output
     (call-with-input-file 1)
     (call-with-input-file* 1)
@@ -236,12 +236,12 @@
     (call-with-output-file* 1)
     (with-input-from-file 1)
     (with-output-to-file 1)
-    
+
     (call-with-input-string 1)
     (call-with-input-bytes 1)
     (with-input-from-string 1)
     (with-input-from-bytes 1)
-    
+
     ;; 15 Operating System
     (define-runtime-path 1)
     (define-runtime-paths 1)
