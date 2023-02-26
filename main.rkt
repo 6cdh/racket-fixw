@@ -1,8 +1,7 @@
 #lang racket/base
 
 (provide fixw
-         fixw/lines
-         fixw/range)
+         fixw/lines)
 
 (require "fixw.rkt")
 

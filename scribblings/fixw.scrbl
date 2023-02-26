@@ -62,29 +62,21 @@ It accepts these flags:
     amount of whitespace as if there are visible atom at that line. It is designed to be used 
     when editing.
     
+    @racket[fixw] also remove extra trailing empty lines to keep only one trailing empty line.
+
     The builtin rules are always used.
 }
 
 @defproc[(fixw/lines [in input-port?]
                      [rules (or/c (hash/c string? integer?) #f)]
+                     [start exact-nonnegative-integer? 0]
+                     [end exact-nonnegative-integer? (length (port->lines in))]
                      [#:interactive? interactive? boolean? #f])
                      (listof string?)]{
-    Like @racket[fixw], but return a list of string. Every string denotes a formatted line.
-    Note the number of lines of formatted code is not strictly same as the original code, as
-    fixw would remove extra trailing empty lines to keep only one trailing empty line.
+    Like @racket[fixw], but return a list of string contains the formatted lines from @racket[start]
+    to @racket[end](exclusive).
 
-    The builtin rules are always used.
-}
-
-@defproc[(fixw/range [in input-port?]
-                     [rules (or/c (hash/c string? integer?) #f)]
-                     [start-line integer?]
-                     [end-line integer?]
-                     [#:interactive? interactive? boolean? #f])
-                     (listof string?)]{
-    Like @racket[fixw], but only format lines from @racket[start-line] to @racket[end-line]
-    (exclusive), and return it. The number of lines of formatted code is same as the original
-    code. For the removed extra trailing empty lines, it will return a empty string.
+    @racket[fixw/lines] don't remove extra trailing empty lines.
 
     The builtin rules are always used.
 }

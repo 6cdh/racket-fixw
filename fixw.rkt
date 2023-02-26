@@ -1,8 +1,7 @@
 #lang racket/base
 
 (provide fixw
-         fixw/lines
-         fixw/range)
+         fixw/lines)
 
 (require syntax-color/racket-lexer
          racket/match
@@ -158,6 +157,13 @@
                          tokens)))
   (reverse tokens))
 
+(define (process-trailing-newlines tokens)
+  (define reversed (reverse tokens))
+  (reverse (append (list "\n" "\n")
+                   (or (memf (λ (tok) (not (string=? tok "\n")))
+                             reversed)
+                       '()))))
+
 (define (fixw/tokens in user-rules interactive?)
   (define builtin-rules (add-rule rule/racket))
   (define rules (hash-union builtin-rules (or user-rules (hasheq))
@@ -191,13 +197,6 @@
        (cond [(list-literal? head paren) (+ 1 par-pos)]
              [(hit-rule? rules head arg) (+ 2 par-pos)]
              [else last-indent])]))
-
-  (define (process-trailing-newlines tokens)
-    (define reversed (reverse tokens))
-    (reverse (append (list "\n" "\n")
-                     (or (memf (λ (tok) (not (string=? tok "\n")))
-                               reversed)
-                         '()))))
 
   (define (update-stack! stack prev-tok-t tok current-char-pos)
     (when (and (not (null? stack))
@@ -260,31 +259,27 @@
                    (list tok-text)
                    (rec tok-t (cdr tokens) next-char-pos new-stack))]))
 
-  (define result (rec 'open-parenthesis tokens 0 '()))
-  (process-trailing-newlines result))
+  (rec 'open-parenthesis tokens 0 '()))
 
 (define (fixw in rules #:interactive? [interactive? #f])
-  (string-append* (fixw/tokens in rules interactive?)))
+  (define formatted (fixw/tokens in rules interactive?))
+  (string-append* (process-trailing-newlines formatted)))
 
-(define (fixw/lines in rules #:interactive? [interactive? #f])
+(define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
   (define toks (fixw/tokens in rules interactive?))
   (define lines-lst
-    (let ([res '(())])
-      (for ([tok toks])
-        (cond [(string=? tok *newline*) (set! res (list-set res 0
-                                                            (cons tok (car res))))
-                                        (set! res (cons '() res))]
-              [else (set! res (list-set res 0
-                                        (cons tok (car res))))]))))
-  (for/list ([line-lst lines-lst])
-    (string-append* line-lst)))
-
-(define (fixw/range in rules start-line end-line #:interactive? [interactive? #f])
-  (define lines (fixw/lines in rules #:interactive? interactive?))
-  (let loop ([i 0]
-             [lines lines])
-    (cond [(= i end-line) '()]
-          [(< i start-line) (loop (add1 i) (cdr lines))]
-          [(null? lines) (cons "" (loop (add1 i) lines))]
-          [else (cons (car lines) (loop (add1 i) (cdr lines)))])))
+    (for/fold ([res '(())]
+               #:result (reverse res))
+              ([tok toks])
+      (cond [(string=? tok *newline*)
+             (cons '() res)]
+            [else
+             (cons (cons tok (car res))
+                   (cdr res))])))
+  (define lines
+    (for/list ([line-lst lines-lst])
+      (string-append* line-lst)))
+  (when (not end-line)
+    (set! end-line (length lines)))
+  (drop (take lines end-line) start-line))
 
