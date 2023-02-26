@@ -17,7 +17,7 @@
         [else (list text type start end)]))
 
 (struct Token
-  (text type) #:transparent)
+  (text type))
 
 (define (string-count str char)
   (for/sum ([c str]
@@ -41,8 +41,7 @@
    ;; char position of the first atom at the previous line in the current list if exists
    ;; or the char position of the second element of the current list if exists
    ;; otherwise, it's -1
-   [last-indent #:mutable])
-  #:transparent)
+   [last-indent #:mutable]))
 
 (define (sf-inc-arg! sf)
   (set-StackFrame-arg! sf (add1 (StackFrame-arg sf))))
