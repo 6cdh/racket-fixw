@@ -268,7 +268,7 @@
   (define toks (fixw/tokens in rules interactive?))
   (define lines-lst
     (for/fold ([res '(())]
-               #:result (reverse res))
+               #:result (reverse (map reverse res)))
               ([tok toks])
       (cond [(string=? tok *newline*)
              (cons '() res)]
