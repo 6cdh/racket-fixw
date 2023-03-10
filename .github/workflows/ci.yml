@@ -25,4 +25,4 @@ jobs:
       - name: Run test
         run: raco test tests
       - name: install
-        run: raco install
+        run: raco pkg install
