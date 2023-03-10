@@ -21,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Restore Racket
+      - name: Cache Racket
+        id: restore
         uses: actions/cache@v3
         with:
           path: ${{ env.cache_path }}
@@ -36,12 +37,6 @@ jobs:
           version: ${{ env.racket_version }}
           sudo: never
           dest: ${{ env.cache_path }}
-
-      - name: Cache Racket
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.cache_path }}
-          key: ${{ matrix.os }}-racket-${{ env.racket_version }}
 
       - name: Run test
         run: raco test tests
