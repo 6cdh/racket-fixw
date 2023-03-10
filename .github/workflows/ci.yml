@@ -29,17 +29,27 @@ jobs:
               C:\Program Files\Racket
     steps:
       - uses: actions/checkout@v3
+      - name: Restore Racket
+        id: restore
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.cache_path }}
+          key: ${{ matrix.os }}-racket-${{ env.racket_version }}
+
       - uses: Bogdanp/setup-racket@v1.9.1
+        if: steps.restore.outputs.cache-hit != 'true'
         with:
           architecture: 'x64'
           distribution: 'full'
           variant: 'CS'
           version: ${{ env.racket_version }}
+
       - name: Cache Racket
         uses: actions/cache@v3
         with:
           path: ${{ matrix.cache_path }}
           key: ${{ matrix.os }}-racket-${{ env.racket_version }}
+
       - name: Run test
         run: raco test tests
       - name: Run install
