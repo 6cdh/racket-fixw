@@ -11,18 +11,37 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    env:
+      racket_version: '8.8'
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            cache_path: |
+              /usr/share/racket
+              /usr/lib/racket
+              /usr/include/racket
+              /usr/etc/racket
+              /usr/bin/racket
+              /usr/bin/raco
+          - os: windows-latest
+            cache_path: |
+              C:\Program Files\Racket
     steps:
       - uses: actions/checkout@v3
       - uses: Bogdanp/setup-racket@v1.9.1
+        if: steps.restore-cache.outputs.cache-hit != 'true'
         with:
           architecture: 'x64'
           distribution: 'full'
           variant: 'CS'
-          version: 'stable'
+          version: ${{ env.racket_version }}
+      - name: Cache Racket
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.cache_path }}
+          key: ${{ matrix.os }}-racket-${{ env.racket_version }}
       - name: Run test
         run: raco test tests
-      - name: install
+      - name: Run install
         run: raco pkg install
