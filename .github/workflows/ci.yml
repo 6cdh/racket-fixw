@@ -25,7 +25,6 @@ jobs:
           distribution: 'full'
           variant: 'CS'
           version: ${{ env.racket_version }}
-          sudo: never
 
       - name: Run test
         run: raco test tests
