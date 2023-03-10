@@ -86,8 +86,7 @@ It accepts these flags:
 You might want to know what fixw exactly do with your code:
 
 @itemlist[
-    @item{running lexer on the code, remove whitespaces except @racket[#\newline] or it's in disabled part.
-    Note in this process, @racket[#\return] would be removed.}
+    @item{running lexer on the code, remove whitespaces except newline or it's in disabled part.}
     @item{regenerate the code while add some whitespaces between two tokens except several exceptions,
     and indent for the tokens that following a @racket[#\newline].}
     @item{remove extra trailing empty lines.}

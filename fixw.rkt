@@ -46,6 +46,7 @@
 (define (sf-inc-arg! sf)
   (set-StackFrame-arg! sf (add1 (StackFrame-arg sf))))
 
+;; \n or \r\n, will change at runtime
 (define *newline* "\n")
 
 ;; return a list of tokens
@@ -69,6 +70,7 @@
   (define bytes-code (port->bytes in))
   (define tokens '())
   (define on? #t)
+  (set! *newline* "\n")
   (for ([tok (in-port lexer (open-input-bytes bytes-code))])
     (define new-toks
       (match tok
@@ -76,7 +78,10 @@
         [(list spaces 'white-space _ ...)
          (cond [(not on?) (list (Token spaces 'disable))]
                [else
-                (let ([newlines (string-count spaces #\newline)])
+                (let ([newlines (string-count spaces #\newline)]
+                      [returns (string-count spaces #\return)])
+                  (when (> returns 0)
+                    (set! *newline* "\r\n"))
                   (if (= newlines 0)
                       '()
                       (make-list newlines (Token *newline* 'newline))))])]
@@ -93,9 +98,15 @@
 
         ;; comment
         [(list _ 'comment start end _ ...)
-         (define content (bytes->string/utf-8 (subbytes bytes-code (sub1 start) (sub1 end))))
+         (define content (bytes->string/utf-8
+                           (subbytes bytes-code (sub1 start) (sub1 end))))
          (cond [(string-contains? content "(fixw on)") (set! on? #t)]
                [(string-contains? content "(fixw off)") (set! on? #f)])
+         (when (string-contains? content "\r")
+           (set! *newline* "\r\n"))
+         ;; remove trailing `\r` in comment for `\r\n` file
+         (when on?
+           (set! content (string-trim content)))
          (list (Token content 'comment))]
         [(list sexp-cmt 'sexp-comment _ ...)
          (list (Token sexp-cmt 'sexp-comment))]
@@ -158,8 +169,8 @@
 
 (define (process-trailing-newlines tokens)
   (define reversed (reverse tokens))
-  (reverse (append (list "\n" "\n")
-                   (or (memf (λ (tok) (not (string=? tok "\n")))
+  (reverse (append (list *newline* *newline*)
+                   (or (memf (λ (tok) (not (string=? tok *newline*)))
                              reversed)
                        '()))))
 

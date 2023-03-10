@@ -29,6 +29,14 @@
   '(a b c)
   `(a b c ,(* 1 2))
 
+  #|
+  comment
+  |#
+
+  #! comment
+
+  #!/comment
+
   ;; (fixw off)
 
   (1 2

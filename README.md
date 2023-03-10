@@ -45,7 +45,6 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 * [x] respect newline
 * [x] works for unbalanced code
 * [x] remove trailing spaces
-* [x] convert crlf to lf
 * [x] force only one space between two tokens with several exceptions
 * [x] force only one empty line at the end of the file
 * [x] raco integration
