@@ -18,23 +18,12 @@ jobs:
         include:
           - os: ubuntu-latest
             cache_path: |
-              /usr/share/racket
-              /usr/lib/racket
-              /usr/include/racket
-              /usr/etc/racket
-              /usr/bin/racket
-              /usr/bin/raco
+              /opt/racket
           - os: windows-latest
             cache_path: |
               C:\Program Files\Racket
     steps:
       - uses: actions/checkout@v3
-      - name: Restore Racket
-        id: restore
-        uses: actions/cache@v3
-        with:
-          path: ${{ matrix.cache_path }}
-          key: ${{ matrix.os }}-racket-${{ env.racket_version }}
 
       - uses: Bogdanp/setup-racket@v1.9.1
         if: steps.restore.outputs.cache-hit != 'true'
@@ -43,6 +32,8 @@ jobs:
           distribution: 'full'
           variant: 'CS'
           version: ${{ env.racket_version }}
+          sudo: never
+          dest: '/opt/racket'
 
       - name: Cache Racket
         uses: actions/cache@v3
