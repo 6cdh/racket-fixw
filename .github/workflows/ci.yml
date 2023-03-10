@@ -30,7 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Bogdanp/setup-racket@v1.9.1
-        if: steps.restore-cache.outputs.cache-hit != 'true'
         with:
           architecture: 'x64'
           distribution: 'full'
