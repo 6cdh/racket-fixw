@@ -173,7 +173,7 @@
 
 (define (fixw/tokens in user-rules interactive?)
   (define builtin-rules (add-rule rule/racket))
-  (define rules (hash-union builtin-rules (or user-rules (hasheq))
+  (define rules (hash-union builtin-rules (or user-rules (hash))
                             #:combine/key (λ (k builtin user) user)))
 
   (define (indenter stack)
