@@ -1,6 +1,8 @@
 #lang racket/base
 
-(provide run/user)
+(provide run/user
+         read-config
+         read-config/rec)
 
 (require "fixw.rkt"
          racket/port
@@ -12,14 +14,14 @@
 (define (run/user path-strings)
   (cond [(null? path-strings)
          (define output
-           (fixw (current-input-port) (read-config/dir (current-directory))))
+           (fixw (current-input-port) (read-config/rec (current-directory))))
          (display output)]
         [else
          (for ([p path-strings])
            (cond [(not (path-string? p)) (error (format "~v is not a path." p))]
                  [(not (file-or-directory-type p #f)) (error (format "path ~v does not exist." p))]
-                 [(file? p) (format-file p (read-config/dir p))]
-                 [(dir? p) (format-dir p (read-config/dir p))]
+                 [(file? p) (format-file p (read-config/rec p))]
+                 [(dir? p) (format-dir p (read-config/rec p))]
                  [else (error "unknown error for path: ~v" p)]))]))
 
 (define/contract (file? path)
@@ -70,7 +72,7 @@
               #:combine/key (λ (k old new) new)))
 
 ;; recursively read config start at `path` towards root directory
-(define/contract (read-config/dir dir-path)
+(define/contract (read-config/rec dir-path)
   (-> (or/c path? path-string?) (or/c hash? #f))
 
   (let loop ([dir-path (simple-form-path dir-path)]
