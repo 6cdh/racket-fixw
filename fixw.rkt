@@ -82,7 +82,7 @@
                   (if (= newlines 0)
                       '()
                       (make-list newlines (Token file-newline 'newline))))])]
-        
+
         ;; parenthesis
         [(list opar 'parenthesis _ ...)
          #:when (string-contains? "([{" opar)
@@ -92,7 +92,7 @@
          (list (Token cpar 'close-parenthesis))]
         [(list restpar 'parenthesis _ ...)
          (list (Token restpar 'open-list-literal))]
-        
+
         ;; comment
         [(list _ 'comment start end _ ...)
          (define content (bytes->string/utf-8
@@ -107,7 +107,7 @@
          (list (Token content 'comment))]
         [(list sexp-cmt 'sexp-comment _ ...)
          (list (Token sexp-cmt 'sexp-comment))]
-        
+
         ;; quote
         [(list sym 'constant _ ...)
          #:when (ormap (λ (s) (string=? s sym))
@@ -117,45 +117,45 @@
          #:when (ormap (λ (s) (string=? s sym))
                        '("," ",@" "#," "#,@"))
          (list (Token sym 'quote))]
-        
+
         ;; string
         [(list str 'string _ ...)
          (list (Token str 'string))]
-        
+
         ;; keyword
         [(list text 'hash-colon-keyword _ ...)
          (list (Token text 'keyword))]
-        
+
         ;; symbol
         [(list text 'symbol _ ...)
          (list (Token text 'symbol))]
-        
+
         ;; dot
         [(list text 'other _ ...)
          #:when (string=? text ".")
          (list (Token text 'dot))]
-        
+
         ;; prefix
         [(list text 'constant _ ...)
          #:when (string=? text "#&")
          (list (Token text 'prefix))]
-        
+
         ;; constant
         [(list text 'constant _ ...)
          (list (Token text 'constant))]
-        
+
         ;; error
         [(list text 'error _ ...)
          (list (Token text 'error))]
-        
+
         [(list text 'other _ ...)
          #:when (or (string-prefix? text "#lang")
                     (string-prefix? text "#!"))
          (list (Token text 'lang))]
-        
+
         [(list text 'other _ ...)
          (list (Token text 'other))]
-        
+
         [err (error "unknown token" err)]))
     (set! tokens (append (if on?
                              new-toks
@@ -180,17 +180,17 @@
     (define (hit-rule? rules head arg)
       (and (hash-has-key? rules (Token-text head))
            (>= (- arg 1) (hash-ref rules (Token-text head)))))
-    
+
     (define (list-literal? head paren)
       (or (memq (Token-type head) '(constant string keyword prefix))
           (memq (Token-type paren) '(open-list-literal))))
-    
+
     (define (guess-list-literal? paren)
       (string-suffix? (Token-text paren) "["))
-    
+
     (define (head-is-list? head)
       (memq (Token-type head) '(open-parenthesis open-list-literal)))
-    
+
     (match stack
       ['() 0]
       [(list (StackFrame _ 0 _ par-pos _) _ ...)
@@ -204,7 +204,7 @@
        (cond [(list-literal? head paren) (+ 1 par-pos)]
              [(hit-rule? rules head arg) (+ 2 par-pos)]
              [else last-indent])]))
-  
+
   (define (update-stack! stack prev-tok-t tok current-char-pos)
     (when (and (not (null? stack))
                (not (memq prev-tok-t '(quote prefix))))
@@ -217,7 +217,7 @@
                 (= 1 (StackFrame-arg sf)))
         (set-StackFrame-last-indent! sf current-char-pos))
       (sf-inc-arg! sf)))
-  
+
   (define-values (file-newline tokens) (read-tokens in))
   (define (rec prev-tok-t tokens char-pos stack)
     (cond [(null? tokens) '()]
@@ -226,7 +226,7 @@
            (define tok-t (Token-type tok))
            (define tok-text (Token-text tok))
            (define tok-len (string-length tok-text))
-           
+
            (define spaces-before
              (match* [prev-tok-t tok-t]
                [('newline 'newline) (if interactive? (indenter stack) 0)]
@@ -240,13 +240,13 @@
                [('disable _) 0] ; disabled
                [(_ 'disable) 0] ; disabled
                [(_ _) 1]))
-           
+
            (define current-char-pos (+ char-pos spaces-before))
            (define next-char-pos
              (match tok-t
                ['newline 0]
                [_ (+ current-char-pos tok-len)]))
-           
+
            (define new-stack
              (match* [prev-tok-t tok-t]
                [(_ (or 'newline 'comment 'sexp-comment 'disable))
@@ -261,11 +261,11 @@
                [(_ _)
                 (update-stack! stack prev-tok-t tok current-char-pos)
                 stack]))
-           
+
            (append (make-list spaces-before " ")
                    (list tok-text)
                    (rec tok-t (cdr tokens) next-char-pos new-stack))]))
-  
+
   (values file-newline (rec 'open-parenthesis tokens 0 '())))
 
 (define (fixw in rules #:interactive? [interactive? #f])
@@ -273,19 +273,8 @@
   (string-append* (process-trailing-newlines formatted file-newline)))
 
 (define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
-  (define-values (file-newline toks) (fixw/tokens in rules interactive?))
-  (define lines-lst
-    (for/fold ([res '(())]
-               #:result (reverse (map reverse res)))
-              ([tok toks])
-      (cond [(string=? tok file-newline)
-             (cons '() res)]
-            [else
-             (cons (cons tok (car res))
-                   (cdr res))])))
-  (define lines
-    (for/list ([line-lst lines-lst])
-      (string-append* line-lst)))
+  (define formatted (fixw in rules #:interactive? interactive?))
+  (define lines (port->lines (open-input-string formatted)))
   (when (not end-line)
     (set! end-line (length lines)))
   (drop (take lines end-line) start-line))
