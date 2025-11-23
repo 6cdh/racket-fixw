@@ -230,6 +230,7 @@
            (define spaces-before
              (match* [prev-tok-t tok-t]
                [('newline 'newline) (if interactive? (indenter stack) 0)]
+               [('newline 'string) #:when (string-prefix? tok-text "#<<") 0]
                [(_ 'newline) 0] ; no trailing spaces
                [('newline _) (indenter stack)]
                [('open-parenthesis _) 0]
