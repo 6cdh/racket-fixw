@@ -274,9 +274,11 @@
   (string-append* (process-trailing-newlines formatted file-newline)))
 
 (define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
-  (define formatted (fixw in rules #:interactive? interactive?))
-  (define lines (port->lines (open-input-string formatted)))
+  (define text (port->string in))
+  (define lines (port->lines (open-input-string text)))
+  (define formatted (fixw (open-input-string text) rules #:interactive? interactive?))
+  (define formatted-lines (port->lines (open-input-string formatted)))
   (when (not end-line)
     (set! end-line (length lines)))
-  (drop (take lines end-line) start-line))
+  (drop (take formatted-lines end-line) start-line))
 
