@@ -4,7 +4,7 @@
 
   (cond [(= 1 1) 1]
         [(= 2 2) (define var 3)
-                 var]
+         var]
         [else 3])
 
   (cond
