@@ -204,6 +204,7 @@
        (cond [(list-literal? head paren) (+ 1 par-pos)]
              [(hit-rule? rules head arg) (+ 2 par-pos)]
              [(guess-list-literal? paren) (+ 1 par-pos)]
+             [(guess-list-literal? head) (+ 1 par-pos)]
              [else last-indent])]))
 
   (define (update-stack! stack prev-tok-t tok current-char-pos)
