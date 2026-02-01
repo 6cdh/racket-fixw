@@ -44,7 +44,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 - [x] Fixes indentation
 - [x] Respects existing newlines
 - [x] Works on incorrect code
-- [x] Removes trailing spaces
+- [x] Enforce single empty line at the end of file with `-n` cli option
 - [x] Enforces single spaces between tokens (with several exceptions)
 - [x] Raco integration
 - [x] Reads [scmindent](https://github.com/ds26gte/scmindent)-compatible configuration files
@@ -53,7 +53,6 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 
 Planned Features:
 
-- [ ] Configurable trailing newline
 - [ ] Customizable formatting system (macro-like)
   - [ ] Sorting `require` clauses
   - [ ] Keyword arguments and default arguments support
