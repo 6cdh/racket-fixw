@@ -114,3 +114,4 @@
                      ([sym sym-lst])
              (hash-set rules (symbol->string sym) num))]
           [text (error (format "error rule ~v\n in path ~v" text file-path))])))))
+

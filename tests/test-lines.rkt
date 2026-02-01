@@ -5,7 +5,7 @@
            rackunit)
 
   (define original
-    #<<END
+#<<END
 (1)
 (2)
 (3)

@@ -14,7 +14,7 @@
       #:program "fixw"
       #:once-each
       [("-t" "--time") "show total time to run"
-                       (time-mode? #t)]
+       (time-mode? #t)]
       #:args files-or-dirs
       files-or-dirs))
 
