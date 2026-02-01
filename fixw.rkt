@@ -266,11 +266,7 @@
   (values file-newline (rec 'open-parenthesis tokens 0 '())))
 
 (define (extract-trailing-newlines tokens file-newline)
-  (define reversed (reverse tokens))
-  (define-values (newlines main-tokens)
-    (splitf-at reversed
-               (λ (tok) (string=? tok file-newline))))
-  (values (reverse main-tokens) newlines))
+  (splitf-at-right tokens (λ (tok) (string=? tok file-newline))))
 
 (define (fixw in rules #:interactive? [interactive? #f])
   (define-values (file-newline formatted) (fixw/tokens in rules interactive?))
