@@ -1,10 +1,10 @@
 # Racket fixw
 
-A Racket formatter that add/remove some whitespaces but respects newline.
+A Racket formatter that adjusts whitespace but respects newlines.
 
 ## :battery: Status
 
-It should work as expected, except some rules for macros and special forms are missing.
+It should work as expected, except some builtin rules for macros and special forms are missing.
 
 ## :printer: Example
 
@@ -41,26 +41,28 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 
 ## :sparkles: Features
 
-- [x] fix indent
-- [x] respect newline
-- [x] works for unbalanced code
-- [x] remove trailing spaces
-- [x] force only one space between two tokens with several exceptions
-- [x] force only one empty line at the end of the file
-  - [ ] make it configurable
-- [x] raco integration
-- [x] read [scmindent](https://github.com/ds26gte/scmindent) compatible configuration file
-- [x] skip code that surrounded by special comments
-- [x] support range formatting
-- [ ] a configurable system looks like macro but allows user customize the formatting
-  - [ ] support sort `require`
-  - [ ] support keyword arguments and default arguments
+- [x] Fixes indentation
+- [x] Respects existing newlines but enforces a single empty line at the end of the file
+- [x] Works on incorrect code
+- [x] Removes trailing spaces
+- [x] Enforces single spaces between tokens (with several exceptions)
+- [x] Raco integration
+- [x] Reads [scmindent](https://github.com/ds26gte/scmindent)-compatible configuration files
+- [x] Skips code surrounded by special comments
+- [x] Supports range formatting
 
-## :bookmark_tabs: todo
+Planned Features:
 
-- [ ] refactor
-  - [ ] isolate the lexer workarounds and special escape comments processing
-  - [ ] simplify the core logic
+- [ ] Configurable trailing newline
+- [ ] Customizable formatting system (macro-like)
+  - [ ] Sorting `require` clauses
+  - [ ] Keyword arguments and default arguments support
+
+## :bookmark_tabs: Todo
+
+- [ ] Refactor
+  - [ ] Isolate lexer workarounds and special escape comment processing
+  - [ ] Simplify core logic
 
 ## :rocket: Run
 
@@ -69,17 +71,17 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 raco pkg install fixw
 # show help
 raco fixw -h
-# read from stdin and output formatted text to stdout
+# read from stdin and print formatted text to stdout
 raco fixw
-# format current directory recursively
+# format all Racket files in current directory recursively
 raco fixw .
 ```
 
-## :thinking: docs
+## :thinking: Documentation
 
-See [online docs](https://docs.racket-lang.org/fixw/index.html).
+See the [online documentation](https://docs.racket-lang.org/fixw/index.html).
 
 ## :paperclips: See also
 
-- [fmt](https://github.com/sorawee/fmt) - a Racket formatter that calculate optimal layout
-- [scmindent](https://github.com/ds26gte/scmindent) - a general lisp indenter
+- [fmt](https://github.com/sorawee/fmt) - A Racket formatter that calculates optimal layout.
+- [scmindent](https://github.com/ds26gte/scmindent) - A general Lisp indenter.
