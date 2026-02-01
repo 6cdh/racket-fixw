@@ -97,5 +97,89 @@
     (format-string "(f\n arg)")
     "(f\n  arg)"
     "Function application split lines")
+
+  ;; Test 'begin' (rule 0)
+  (check-equal?
+    (format-string "(begin\n  expr1\n  expr2)")
+    "(begin\n  expr1\n  expr2)"
+    "begin indentation (rule 0)")
+
+  ;; Test 'begin' with first arg on new line (should be same)
+  (check-equal?
+    (format-string "(begin expr1\n  expr2)")
+    "(begin expr1\n  expr2)"
+    "begin indentation with first arg on same line (rule 0)")
+
+  ;; Test 'syntax-parse' (rule 1)
+  (check-equal?
+    (format-string "(syntax-parse stx\n  [pat body])")
+    "(syntax-parse stx\n  [pat body])"
+    "syntax-parse indentation (rule 1)")
+
+  ;; Test 'define-simple-macro' (rule 1)
+  (check-equal?
+    (format-string "(define-simple-macro (name arg)\n  body)")
+    "(define-simple-macro (name arg)\n  body)"
+    "define-simple-macro indentation (rule 1)")
+
+  ;; Test 'test-case' (rule 1)
+  (check-equal?
+    (format-string "(test-case \"name\"\n  (check-equal? 1 1))")
+    "(test-case \"name\"\n  (check-equal? 1 1))"
+    "test-case indentation (rule 1)")
+
+  ;; Test 'test-begin' (rule 0)
+  (check-equal?
+    (format-string "(test-begin\n  (check-equal? 1 1))")
+    "(test-begin\n  (check-equal? 1 1))"
+    "test-begin indentation (rule 0)")
+
+  ;; Test 'match-define' (rule 1)
+  (check-equal?
+    (format-string "(match-define (list a b)\n  (list 1 2))")
+    "(match-define (list a b)\n  (list 1 2))"
+    "match-define indentation (rule 1)")
+
+  ;; Test 'mixin' (rule 2)
+  (check-equal?
+    (format-string "(mixin (i1%)\n       (i2%)\n  (super-new))")
+    "(mixin (i1%)\n       (i2%)\n  (super-new))"
+    "mixin indentation (rule 2)")
+
+  ;; Test 'trait' (rule 0)
+  (check-equal?
+    (format-string "(trait (i1%)\n  (define/public (m) 1))")
+    "(trait (i1%)\n  (define/public (m) 1))"
+    "trait indentation (rule 0)")
+
+  ;; Test 'struct-copy' (rule 2)
+  (check-equal?
+    (format-string "(struct-copy point p\n  [x 1]\n  [y 2])")
+    "(struct-copy point p\n  [x 1]\n  [y 2])"
+    "struct-copy indentation (rule 2)")
+
+  ;; Test 'new' (rule 1)
+  (check-equal?
+    (format-string "(new frame%\n  [label \"Hi\"])")
+    "(new frame%\n  [label \"Hi\"])"
+    "new indentation (rule 1)")
+
+  ;; Test 'instantiate' (rule 2)
+  (check-equal?
+    (format-string "(instantiate frame% ()\n  [label \"Hi\"])")
+    "(instantiate frame% ()\n  [label \"Hi\"])"
+    "instantiate indentation (rule 2)")
+
+  ;; Test 'shift' (rule 1)
+  (check-equal?
+    (format-string "(shift k\n  (k 1))")
+    "(shift k\n  (k 1))"
+    "shift indentation (rule 1)")
+
+  ;; Test 'reset' (rule 0)
+  (check-equal?
+    (format-string "(reset\n  (shift k (k 1)))")
+    "(reset\n  (shift k (k 1)))"
+    "reset indentation (rule 0)")
   )
 

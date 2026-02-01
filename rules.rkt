@@ -46,6 +46,9 @@
     (define-values-for-syntax 1)
     (define-require-syntax 1)
     (define-provide-syntax 1)
+    ;; 3.15 Sequencing
+    (begin 0)
+    (begin0 0)
     ;; 3.16 Guarded Evaluation
     (when 1)
     (unless 1)
@@ -127,6 +130,7 @@
     (define-struct 1)
     (struct/derived 1)
     (define-struct/derived 1)
+    (struct-copy 2)
     (define-generics 1)
     (generic-instance/c 1)
     (impersonate-generics 2)
@@ -137,6 +141,10 @@
     (interface* 2)
     (class* 1)
     (class 1)
+    (mixin 2)
+    (trait 0)
+    (instantiate 2)
+    (new 1)
     (define/public 1)
     (define/pubment 1)
     (define/public-final 1)
@@ -187,6 +195,7 @@
     (match* 1)
     (match/values 1)
     (define/match 1)
+    (match-define 1)
     (match-let 1)
     (match-let* 1)
     (match-let-values 1)
@@ -204,6 +213,11 @@
     (for/list/concurrent 1)
     (for*/list/concurrent 1)
     (let/ec 1)
+    (let/cc 1)
+    (shift 1)
+    (reset 0)
+    (control 1)
+    (prompt 0)
     (parameterize-break 1)
 
     ;; 11 Concurrency and Parallelism
@@ -248,5 +262,20 @@
     (define-runtime-path-list 1)
     (define-runtime-module-path-index 1)
     (with-logging-to-port 1)
+
+    ;; Common Libraries
+    ;; syntax/parse
+    (syntax-parse 1)
+    (define-simple-macro 1)
+    (define-syntax-class 1)
+    (define-splicing-syntax-class 1)
+    ;; rackunit
+    (test-case 1)
+    (test-suite 1)
+    (test-begin 0)
+    ;; racket/splicing
+    (splicing-let 1)
+    (splicing-let-values 1)
+    (splicing-parameterize 1)
     ))
 
