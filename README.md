@@ -42,7 +42,7 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 ## :sparkles: Features
 
 - [x] Fixes indentation
-- [x] Respects existing newlines but enforces a single empty line at the end of the file
+- [x] Respects existing newlines
 - [x] Works on incorrect code
 - [x] Removes trailing spaces
 - [x] Enforces single spaces between tokens (with several exceptions)

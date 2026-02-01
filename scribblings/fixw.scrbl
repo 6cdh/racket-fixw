@@ -48,6 +48,7 @@ It accepts the following flags:
 
 @itemlist[
     @item{@Flag{t} --- Use @racket[time] to time the entire formatting process and output the result.}
+    @item{@Flag{n} or @DFlag{newline} --- Enforce a trailing empty line (two newlines) at the end of the file.}
 ]
 
 @section{API}
@@ -62,9 +63,17 @@ It accepts the following flags:
     amount of whitespace as if there were a visible atom at that line. This is designed for use
     during editing.
     
-    @racket[fixw] also removes extra trailing empty lines, keeping only one.
+    @racket[fixw] preserves existing trailing empty lines.
 
     The built-in rules are always used.
+}
+
+@defproc[(fixw/trailing-newline [in input-port?]
+                                [rules (or/c (hash/c string? integer?) #f)]
+                                [#:interactive? interactive? boolean? #f])
+                                string?]{
+    Like @racket[fixw], but enforces a trailing empty line (two newlines) at the end of the output.
+    Extra trailing newlines are removed, and newlines are added if missing.
 }
 
 @defproc[(fixw/lines [in input-port?]
@@ -88,7 +97,7 @@ You might want to know what fixw exactly does with your code:
 @itemlist[
     @item{Runs a lexer on the code, removing whitespace (except newlines) unless in @literal{(fixw off)} disabled region.}
     @item{Regenerates the code, adding whitespace between tokens (with exceptions) and indenting tokens that follow a @racket[#\newline].}
-    @item{Removes extra trailing empty lines.}
+    @item{Preserves trailing empty lines (use @racket[fixw/trailing-newline] to enforce a single trailing newline).}
 ]
 
 Any other behavior should be considered a bug.

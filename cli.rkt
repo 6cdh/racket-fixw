@@ -2,26 +2,47 @@
 
 (provide run/user
          read-config
-         read-config/rec)
+         read-config/rec
+         cli-main)
 
 (require "fixw.rkt"
          racket/port
          racket/path
          racket/match
          racket/contract
-         racket/hash)
+         racket/hash
+         racket/cmdline)
 
-(define (run/user path-strings)
+(define (cli-main)
+  (define time-mode? (make-parameter #f))
+  (define trailing-newline? (make-parameter #f))
+  (define paths
+    (command-line
+      #:program "fixw"
+      #:once-each
+      [("-t" "--time") "show total time to run"
+       (time-mode? #t)]
+      [("-n" "--newline") "ensure a trailing empty line"
+       (trailing-newline? #t)]
+      #:args files-or-dirs
+      files-or-dirs))
+
+  (define formatter (if (trailing-newline?) fixw/trailing-newline fixw))
+
+  (cond [(time-mode?) (time (run/user paths #:formatter formatter))]
+        [else (run/user paths #:formatter formatter)]))
+
+(define (run/user path-strings #:formatter [formatter fixw])
   (cond [(null? path-strings)
          (define output
-           (fixw (current-input-port) (read-config/rec (current-directory))))
+           (formatter (current-input-port) (read-config/rec (current-directory))))
          (display output)]
         [else
          (for ([p path-strings])
            (cond [(not (path-string? p)) (error (format "~v is not a path." p))]
                  [(not (file-or-directory-type p #f)) (error (format "path ~v does not exist." p))]
-                 [(file? p) (format-file p (read-config/rec p))]
-                 [(dir? p) (format-dir p (read-config/rec p))]
+                 [(file? p) (format-file p (read-config/rec p) #:formatter formatter)]
+                 [(dir? p) (format-dir p (read-config/rec p) #:formatter formatter)]
                  [else (error "unknown error for path: ~v" p)]))]))
 
 (define/contract (file? path)
@@ -36,20 +57,20 @@
 
 (define rules? (hash/c string? natural-number/c))
 
-(define/contract (format-file path rules)
-  (-> (or/c path? path-string?) (or/c rules? #f) void?)
+(define/contract (format-file path rules #:formatter [formatter fixw])
+  (->* ((or/c path? path-string?) (or/c rules? #f)) (#:formatter procedure?) void?)
 
   (call-with-input-file path
     (λ (infile)
       (define original (port->string infile))
-      (define formatted (fixw (open-input-string original) rules))
+      (define formatted (formatter (open-input-string original) rules))
       (when (not (string=? formatted original))
         (with-output-to-file path
           #:exists 'replace
           (λ () (display formatted)))))))
 
-(define/contract (format-dir path rules)
-  (-> (or/c path? path-string?) (or/c rules? #f) void?)
+(define/contract (format-dir path rules #:formatter [formatter fixw])
+  (->* ((or/c path? path-string?) (or/c rules? #f)) (#:formatter procedure?) void?)
 
   (let loop ([path path]
              [rules rules])
@@ -57,7 +78,7 @@
       (cond [(not (file-or-directory-type p #f))
              (error (format "path ~v does not exist." p))]
             [(and (file? p) (equal? #".rkt" (path-get-extension p)))
-             (format-file p rules)]
+             (format-file p rules #:formatter formatter)]
             [(dir? p)
              (when (not (string=? ".git"
                                   (some-system-path->string

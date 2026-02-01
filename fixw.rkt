@@ -1,6 +1,7 @@
 #lang racket/base
 
 (provide fixw
+         fixw/trailing-newline
          fixw/lines)
 
 (require syntax-color/racket-lexer
@@ -164,13 +165,6 @@
                          tokens)))
   (values file-newline (reverse tokens)))
 
-(define (process-trailing-newlines tokens file-newline)
-  (define reversed (reverse tokens))
-  (reverse (append (list file-newline file-newline)
-                   (or (memf (λ (tok) (not (string=? tok file-newline)))
-                             reversed)
-                       '()))))
-
 (define (fixw/tokens in user-rules interactive?)
   (define builtin-rules (add-rule rule/racket))
   (define rules (hash-union builtin-rules (or user-rules (hash))
@@ -271,9 +265,22 @@
 
   (values file-newline (rec 'open-parenthesis tokens 0 '())))
 
+(define (extract-trailing-newlines tokens file-newline)
+  (define reversed (reverse tokens))
+  (define-values (newlines main-tokens)
+    (splitf-at reversed
+               (λ (tok) (string=? tok file-newline))))
+  (values (reverse main-tokens) newlines))
+
 (define (fixw in rules #:interactive? [interactive? #f])
   (define-values (file-newline formatted) (fixw/tokens in rules interactive?))
-  (string-append* (process-trailing-newlines formatted file-newline)))
+  (string-append* formatted))
+
+(define (fixw/trailing-newline in rules #:interactive? [interactive? #f])
+  (define-values (file-newline formatted) (fixw/tokens in rules interactive?))
+  (define-values (main-tokens _)
+    (extract-trailing-newlines formatted file-newline))
+  (string-append* (append main-tokens (list file-newline file-newline))))
 
 (define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
   (define text (port->string in))
