@@ -1,7 +1,6 @@
 #lang racket/base
 
 (provide fixw
-         fixw/trailing-newline
          fixw/lines)
 
 (require "fixw.rkt")

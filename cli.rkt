@@ -16,6 +16,7 @@
 (define (cli-main)
   (define time-mode? (make-parameter #f))
   (define trailing-newline? (make-parameter #f))
+  (define explode? (make-parameter #f))
   (define paths
     (command-line
       #:program "fixw"
@@ -24,10 +25,17 @@
        (time-mode? #t)]
       [("-n" "--newline") "ensure a trailing empty line"
        (trailing-newline? #t)]
+      [("-x" "--explode") "explode close parentheses"
+       (explode? #t)]
       #:args files-or-dirs
       files-or-dirs))
 
-  (define formatter (if (trailing-newline?) fixw/trailing-newline fixw))
+  (define formatter
+    (lambda (in rules)
+      (fixw in rules
+            #:interactive? #f
+            #:trailing-newline? (trailing-newline?)
+            #:explode? (explode?))))
 
   (cond [(time-mode?) (time (run/user paths #:formatter formatter))]
         [else (run/user paths #:formatter formatter)]))

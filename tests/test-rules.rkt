@@ -57,7 +57,7 @@
 
   ;; Test trailing newline handling for fixw/trailing-newline
   (define (format-string/trailing str [rules #f])
-    (fixw/trailing-newline (open-input-string str) rules))
+    (fixw (open-input-string str) rules #:trailing-newline? #t))
 
   (check-equal?
     (format-string/trailing "(a)")

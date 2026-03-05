@@ -1,7 +1,6 @@
 #lang racket/base
 
 (provide fixw
-         fixw/trailing-newline
          fixw/lines)
 
 (require syntax-color/racket-lexer
@@ -165,7 +164,18 @@
                          tokens)))
   (values file-newline (reverse tokens)))
 
-(define (fixw/tokens in user-rules interactive?)
+;; Make one close paren per line.
+(define (explode-close-paren tokens file-newline)
+  (match tokens
+    ['() '()]
+    [(cons (Token text 'close-parenthesis) rest)
+     (cons (Token file-newline 'newline)
+           (cons (Token text 'close-parenthesis)
+                 (explode-close-paren rest file-newline)))]
+    [(cons tok rest)
+     (cons tok (explode-close-paren rest file-newline))]))
+
+(define (fixw/tokens in user-rules interactive? explode?)
   (define builtin-rules (add-rule rule/racket))
   (define rules (hash-union builtin-rules (or user-rules (hash))
                             #:combine/key (λ (k builtin user) user)))
@@ -263,26 +273,28 @@
                    (list tok-text)
                    (rec tok-t (cdr tokens) next-char-pos new-stack))]))
 
-  (values file-newline (rec 'open-parenthesis tokens 0 '())))
+  (define ready-tokens (if explode? (explode-close-paren tokens file-newline) tokens))
+  (values file-newline (rec 'open-parenthesis ready-tokens 0 '())))
 
 (define (extract-trailing-newlines tokens file-newline)
   (splitf-at-right tokens (λ (tok) (string=? tok file-newline))))
 
-(define (fixw in rules #:interactive? [interactive? #f])
-  (define-values (file-newline formatted) (fixw/tokens in rules interactive?))
-  (string-append* formatted))
-
-(define (fixw/trailing-newline in rules #:interactive? [interactive? #f])
-  (define-values (file-newline formatted) (fixw/tokens in rules interactive?))
-  (define-values (main-tokens _)
-    (extract-trailing-newlines formatted file-newline))
-  (string-append* (append main-tokens (list file-newline file-newline))))
+(define (fixw in rules
+              #:interactive? [interactive? #f]
+              #:trailing-newline? [trailing-newline? #f]
+              #:explode? [explode? #f])
+  (define-values (file-newline formatted) (fixw/tokens in rules interactive? explode?))
+  (cond [trailing-newline?
+         (define-values (main-tokens _) (extract-trailing-newlines formatted file-newline))
+         (string-append* (append main-tokens (list file-newline file-newline)))]
+        [else
+         (string-append* formatted)]))
 
 (define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
   (define text (port->string in))
   (define lines (port->lines (open-input-string text)))
   (define-values (file-newline formatted-toks)
-    (fixw/tokens (open-input-string text) rules interactive?))
+    (fixw/tokens (open-input-string text) rules interactive? #f))
   (define formatted (string-append* formatted-toks))
   (define formatted-lines (port->lines (open-input-string formatted)))
   (when (not end-line)

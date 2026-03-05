@@ -55,25 +55,22 @@ It accepts the following flags:
 
 @defproc[(fixw [in input-port?]
                [rules (or/c (hash/c string? integer?) #f)]
-               [#:interactive? interactive? boolean? #f])
+               [#:interactive? interactive? boolean? #f]
+               [#:explode? explode? boolean? #f]
+               [#:trailing-newline? boolean? #f])
                string?]{
     Reads from @racket[in] using user-defined rules @racket[rules], and returns the formatted string.
 
     If @racket[interactive?] is @racket[#t], every empty line will be indented with the appropriate
     amount of whitespace as if there were a visible atom at that line. This is designed for use
     during editing.
-    
-    @racket[fixw] preserves existing trailing empty lines.
+
+    If @racket[#:trailing-newline?] is @racket[#t], a trailing empty line (two newlines) is enforced at the end of the file.
+    Otherwise, @racket[fixw] preserves existing trailing empty lines.
+
+    If @racket[#:explode?] is @racket[#t], every close parenthesis is placed on its own line (a newline is added before each close paren).
 
     The built-in rules are always used.
-}
-
-@defproc[(fixw/trailing-newline [in input-port?]
-                                [rules (or/c (hash/c string? integer?) #f)]
-                                [#:interactive? interactive? boolean? #f])
-                                string?]{
-    Like @racket[fixw], but enforces a trailing empty line (two newlines) at the end of the output.
-    Extra trailing newlines are removed, and newlines are added if missing.
 }
 
 @defproc[(fixw/lines [in input-port?]
