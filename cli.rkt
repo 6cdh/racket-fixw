@@ -16,7 +16,7 @@
 (define (cli-main)
   (define time-mode? (make-parameter #f))
   (define trailing-newline? (make-parameter #f))
-  (define explode? (make-parameter #f))
+  (define annotate? (make-parameter #f))
   (define paths
     (command-line
       #:program "fixw"
@@ -25,8 +25,8 @@
        (time-mode? #t)]
       [("-n" "--newline") "ensure a trailing empty line"
        (trailing-newline? #t)]
-      [("-x" "--explode") "explode close parentheses"
-       (explode? #t)]
+      [("-a" "--annotate") "annotate close parentheses"
+       (annotate? #t)]
       #:args files-or-dirs
       files-or-dirs))
 
@@ -35,7 +35,7 @@
       (fixw in rules
             #:interactive? #f
             #:trailing-newline? (trailing-newline?)
-            #:explode? (explode?))))
+            #:annotate? (annotate?))))
 
   (cond [(time-mode?) (time (run/user paths #:formatter formatter))]
         [else (run/user paths #:formatter formatter)]))
