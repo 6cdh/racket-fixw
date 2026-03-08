@@ -5,7 +5,7 @@
          read-config/rec
          cli-main)
 
-(require "private/fmt.rkt"
+(require "private/api.rkt"
          racket/port
          racket/path
          racket/match

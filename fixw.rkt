@@ -1,7 +1,7 @@
 #lang racket/base
 
 (require racket/contract
-         "private/fmt.rkt")
+         "private/api.rkt")
 
 (define rules/c (or/c #f (hash/c string? natural-number/c)))
 

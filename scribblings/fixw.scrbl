@@ -144,9 +144,10 @@ Besides these two strategies, fixw also uses some heuristics. Here are the full 
    head)
 ]
 }
-@item{If the form is considered a list literal whose head element is a string, boolean,
-number, character, keyword, @racket["#&"] or the opening parenthesis is not one of @racket[#\(],
-@racket[#\[], @racket[#\{], all elements in this list have the same indentation.
+@item{If the form is considered a list literal whose head element is a string, a constant
+(such as a boolean, number, or character), a keyword, or @racket["#&"], or whose opening token
+is a list-literal opener such as @racket["#("], @racket["#["], @racket["#{"], @racket["#hash("],
+or @racket["#s("], all elements in this list have the same indentation.
 @racketblock[
   (1 2
    3 4)
@@ -172,8 +173,10 @@ number, character, keyword, @racket["#&"] or the opening parenthesis is not one 
     [...])
 ]
 }
-@item{If a rule applies, it is followed.}
-@item{Otherwise, elements follow the indentation of the second element.}
+@item{If a rule applies to the head element, then every element after the ruled arguments is
+indented by 2 extra spaces.}
+@item{Otherwise, later elements follow the saved argument indentation, which is normally the
+indentation of the second element.}
 ]
 
 @section{Config file}

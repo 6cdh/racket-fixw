@@ -60,10 +60,6 @@ Planned Features:
 
 ## :bookmark_tabs: Todo
 
-- [ ] Refactor
-  - [ ] Isolate lexer workarounds and special escape comment processing
-  - [ ] Simplify core logic
-
 ## :rocket: Run
 
 ```shell
