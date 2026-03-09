@@ -49,7 +49,6 @@ It accepts the following flags:
 @itemlist[
     @item{@Flag{t} --- Use @racket[time] to time the entire formatting process and output the result.}
     @item{@Flag{n} or @DFlag{newline} --- Enforce a trailing empty line (two newlines) at the end of the file.}
-  @item{@Flag{a} or @DFlag{annotate} --- Append an annotation such as @tt{) ;/for} after each close parenthesis. If more code would follow on the same line, fixw inserts a newline after the annotation so the comment stays local. Unmatched close parentheses are annotated as @tt{) ;/unmatched}.}
 ]
 
 @section{API}
@@ -57,7 +56,6 @@ It accepts the following flags:
 @defproc[(fixw [in input-port?]
                [rules (or/c (hash/c string? integer?) #f)]
                [#:interactive? interactive? boolean? #f]
-               [#:annotate? annotate? boolean? #f]
                [#:trailing-newline? boolean? #f])
                string?]{
     Reads from @racket[in] using user-defined rules @racket[rules], and returns the formatted string.
@@ -68,8 +66,6 @@ It accepts the following flags:
 
     If @racket[#:trailing-newline?] is @racket[#t], a trailing empty line (two newlines) is enforced at the end of the file.
     Otherwise, @racket[fixw] preserves existing trailing empty lines.
-
-    If @racket[#:annotate?] is @racket[#t], every close parenthesis is annotated with the current form head, such as @tt{) ;/for}. If more tokens would otherwise follow on the same line, @racket[fixw] inserts a newline after the annotation so the comment does not consume later code. Unmatched close parentheses are annotated as @tt{) ;/unmatched}.
 
     The built-in rules are always used.
 }

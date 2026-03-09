@@ -25,12 +25,9 @@
   #:transparent)
 
 ;; rules: merged indentation rule table.
-;; file-newline: newline sequence to emit for inserted line breaks,
-;;               is CRLF for Windows and LF for Unix.
 ;; interactive?: whether REPL-style newline handling is enabled.
-;; annotate?: whether close-paren annotations should be emitted.
 (struct FormatConfig
-  (rules file-newline interactive? annotate?)
+  (rules interactive?)
   #:transparent)
 
 ;; Output state tracks the previous token type, current column, and active frame.
@@ -39,12 +36,6 @@
 ;; frame: active indentation frame, or #f at top level.
 (struct FormatState
   (prev-type col frame)
-  #:transparent)
-
-;; Annotate mode only needs to know which visible token comes next.
-;; token: next visible token, or #f if there is none.
-(struct AnnotateLookahead
-  (token)
   #:transparent)
 
 ;; Merge built-in and user indentation rules into one lookup table.
@@ -144,20 +135,10 @@
     [(_ 'disable) 0]
     [(_ _) 1]))
 
-(define (close-paren-annotation frame)
-  (define annotation-name
-    (cond [(and frame (Frame-head frame))
-           (Token-text (Frame-head frame))]
-          [frame
-           (Token-text (Frame-opener frame))]
-          [else "unmatched"]))
-  (string-append " ;/" annotation-name))
-
-;; Emit one token, including annotate-mode close-paren comments when enabled.
-(define (emit-token out token lookahead state config)
+;; Emit one token and return the updated formatter state.
+(define (emit-token out token state config)
   (define token-type (Token-type token))
   (define token-text (Token-text token))
-  (define next-token (AnnotateLookahead-token lookahead))
   (define spaces
     (spaces-before token state config))
   (define current-col (+ (FormatState-col state) spaces))
@@ -170,35 +151,15 @@
         0
         (+ current-col (string-length token-text))))
 
-  (define annotated-close?
-    (and (FormatConfig-annotate? config)
-         (eq? token-type 'close-parenthesis)))
-  (define insert-newline?
-    (and annotated-close?
-         next-token
-         (not (eq? 'newline (Token-type next-token)))))
-
-  (when annotated-close?
-    (write-string (close-paren-annotation (FormatState-frame state)) out))
-  (when insert-newline?
-    (write-string (FormatConfig-file-newline config) out))
-
-  (values (FormatState (if insert-newline? 'newline token-type)
-                       (if insert-newline? 0 next-col)
+  (values (FormatState token-type
+                       next-col
                        (FormatState-frame state))
           current-col))
 
-(define (node-first-token node)
-  (match node
-    [(? Token? token) token]
-    [(AstPrefixed prefix _ _)
-     prefix]
-    [(AstList opener _ _) opener]))
-
 ;; Emit one atomic token and update the current frame when it affects layout.
-(define (format-token out token lookahead state config)
+(define (format-token out token state config)
   (define-values (next-state current-col)
-    (emit-token out token lookahead state config))
+    (emit-token out token state config))
   (define next-frame
     (if (memq (Token-type token)
               '(newline comment sexp-comment disable close-parenthesis))
@@ -210,9 +171,9 @@
   (state-with-frame next-state next-frame))
 
 ;; Format one list with a child frame for its contents, then restore the parent.
-(define (format-list out opener elements closer lookahead state config)
+(define (format-list out opener elements closer state config)
   (define-values (after-open-state opener-col)
-    (emit-token out opener (AnnotateLookahead #f) state config))
+    (emit-token out opener state config))
   (define parent-frame
     (update-frame (FormatState-frame state)
                   (FormatState-prev-type state)
@@ -221,76 +182,57 @@
   (define child-frame
     ;; (sub1 ...) because this should be the last column of the opener.
     (Frame #f 0 opener (sub1 (FormatState-col after-open-state)) -1))
-  (define child-lookahead
-    (AnnotateLookahead
-      (or closer (AnnotateLookahead-token lookahead))))
   (define after-elements-state
-    (format-sequence out elements child-lookahead
+    (format-sequence out elements
                      (state-with-frame after-open-state child-frame)
                      config))
   (cond [closer
          (define-values (after-close-state _current-col)
-           (emit-token out closer lookahead after-elements-state config))
+           (emit-token out closer after-elements-state config))
          (state-with-frame after-close-state parent-frame)]
         [else
          (state-with-frame after-elements-state parent-frame)]))
 
-(define (format-prefixed out prefix trivia datum lookahead state config)
+(define (format-prefixed out prefix trivia datum state config)
   (define following-nodes
     (if datum
         (append trivia (list datum))
         trivia))
-  (define prefix-lookahead
-    (AnnotateLookahead
-      (if (null? following-nodes)
-          (AnnotateLookahead-token lookahead)
-          (node-first-token (car following-nodes)))))
   (define after-prefix-state
-    (format-token out prefix prefix-lookahead state config))
+    (format-token out prefix state config))
   (if (null? following-nodes)
       after-prefix-state
-      (format-sequence out following-nodes lookahead after-prefix-state config)))
+      (format-sequence out following-nodes after-prefix-state config)))
 
-;; Dispatch formatting by node shape while preserving annotate lookahead.
-(define (format-node out node lookahead state config)
+;; Dispatch formatting by node shape.
+(define (format-node out node state config)
   (match node
-    [(? Token? token)
-     (format-token out token lookahead state config)]
-    [(AstPrefixed prefix trivia datum)
-     (format-prefixed out prefix trivia datum lookahead state config)]
     [(AstList opener elements closer)
-     (format-list out opener elements closer lookahead state config)]))
+     (format-list out opener elements closer state config)]
+    [(? Token? token)
+     (format-token out token state config)]
+    [(AstPrefixed prefix trivia datum)
+     (format-prefixed out prefix trivia datum state config)]))
 
-;; Walk sibling nodes while carrying the next visible token for annotations.
-(define (format-sequence out nodes lookahead state config)
+;; Walk sibling nodes in order.
+(define (format-sequence out nodes state config)
   (let loop ([remaining nodes]
              [state state])
     (match remaining
-      ['()
-       state]
       [(cons node rest)
-       (define next-lookahead
-         (match rest
-           [(cons next-node _)
-            (AnnotateLookahead (node-first-token next-node))]
-           ['()
-            lookahead]))
-       (define next-state
-         (format-node out node next-lookahead state config))
-       (loop rest next-state)])))
+       (loop rest (format-node out node state config))]
+      ['()
+       state])))
 
 ;; Parse once, then format the resulting AST with the initial top-level state.
-(define (format-port in user-rules
-                     #:interactive? [interactive? #f]
-                     #:annotate? [annotate? #f])
+(define (format-port in user-rules #:interactive? [interactive? #f])
   (define rules (build-rules user-rules))
   (define-values (file-newline nodes) (parse-port in))
   (define out (open-output-string))
   (define config
-    (FormatConfig rules file-newline interactive? annotate?))
+    (FormatConfig rules interactive?))
   (format-sequence out
                    nodes
-                   (AnnotateLookahead #f)
                    (FormatState 'open-parenthesis 0 #f)
                    config)
   (values file-newline (get-output-string out)))

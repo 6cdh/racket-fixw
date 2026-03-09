@@ -4,8 +4,8 @@
   (require rackunit
            "../fixw.rkt")
 
-  (define (format-string str [rules #f] #:annotate? [annotate? #f])
-    (fixw (open-input-string str) rules #:annotate? annotate?))
+  (define (format-string str [rules #f])
+    (fixw (open-input-string str) rules))
 
   (check-equal?
     (format-string "(f\nx")
@@ -16,11 +16,6 @@
     (format-string "(f))")
     "(f))"
     "Stray closers remain in the output stream")
-
-  (check-equal?
-    (format-string "(f (g x))" #:annotate? #t)
-    "(f (g x) ;/g\n   ) ;/f"
-    "Annotated nested closes still break before an enclosing close paren")
 
   (check-equal?
     (format-string "#fl(1\n2)")

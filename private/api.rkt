@@ -13,12 +13,10 @@
 
 (define (fixw in rules
               #:interactive? [interactive? #f]
-              #:trailing-newline? [trailing-newline? #f]
-              #:annotate? [annotate? #f])
+              #:trailing-newline? [trailing-newline? #f])
   (define-values (file-newline formatted)
     (format-port in rules
-                 #:interactive? interactive?
-                 #:annotate? annotate?))
+                 #:interactive? interactive?))
   (cond [trailing-newline?
          (string-append (trim-trailing-newlines formatted file-newline)
                         file-newline

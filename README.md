@@ -44,7 +44,6 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 - [x] Fixes indentation
 - [x] Respects existing newlines
 - [x] Works on incorrect code
-- [x] Annotates close parens with form heads via `-a` annotate mode
 - [x] Enforce single empty line at the end of file with `-n` cli option
 - [x] Enforces single spaces between tokens (with several exceptions)
 - [x] Raco integration
@@ -69,8 +68,6 @@ raco pkg install fixw
 raco fixw -h
 # read from stdin and print formatted text to stdout
 raco fixw
-# annotate close parens while formatting stdin; later code moves to the next line when needed
-raco fixw -a
 # format all Racket files in current directory recursively
 raco fixw .
 ```

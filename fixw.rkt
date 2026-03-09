@@ -10,8 +10,7 @@
     [fixw
      (->* (input-port? rules/c)
           (#:interactive? boolean?
-           #:trailing-newline? boolean?
-           #:annotate? boolean?)
+         #:trailing-newline? boolean?)
           string?)]
     [fixw/lines
      (->* (input-port? rules/c)
