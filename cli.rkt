@@ -36,6 +36,11 @@
   (cond [(time-mode?) (time (run/user paths #:formatter formatter))]
         [else (run/user paths #:formatter formatter)]))
 
+(define (path-exist? path)
+  (or (file-exists? path) 
+      (directory-exists? path)
+      (link-exists? path)))
+
 (define (run/user path-strings #:formatter [formatter fixw])
   (cond [(null? path-strings)
          (define output
@@ -44,7 +49,7 @@
         [else
          (for ([p path-strings])
            (cond [(not (path-string? p)) (error (format "~v is not a path." p))]
-                 [(not (file-or-directory-type p #f)) (error (format "path ~v does not exist." p))]
+                 [(not (path-exist? p #f)) (error (format "path ~v does not exist." p))]
                  [(file? p) (format-file p (read-config/rec p) #:formatter formatter)]
                  [(dir? p) (format-dir p (read-config/rec p) #:formatter formatter)]
                  [else (error "unknown error for path: ~v" p)]))]))
