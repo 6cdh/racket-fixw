@@ -25,13 +25,14 @@
          formatted]))
 
 (define (fixw/lines in rules [start-line 0] [end-line #f] #:interactive? [interactive? #f])
-  (define text (port->string in))
-  (define lines (port->lines (open-input-string text)))
   (define-values (_file-newline formatted)
-    (format-port (open-input-string text) rules #:interactive? interactive?))
-  (define formatted-lines (port->lines (open-input-string formatted)))
-  (when (not end-line)
-    (set! end-line (length lines)))
-  (drop (take formatted-lines end-line) start-line))
+    (format-port in rules #:interactive? interactive?))
+
+  (define formatted-port (open-input-string formatted))
+  (for/list ([line (in-lines formatted-port)]
+             [ln (in-naturals 0)]
+             #:when (and (<= start-line ln)
+                         (or (not end-line) (< ln end-line))))
+    line))
 
 
