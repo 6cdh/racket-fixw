@@ -49,7 +49,7 @@
         [else
          (for ([p path-strings])
            (cond [(not (path-string? p)) (error (format "~v is not a path." p))]
-                 [(not (path-exist? p #f)) (error (format "path ~v does not exist." p))]
+                 [(not (path-exist? p)) (error (format "path ~v does not exist." p))]
                  [(file? p) (format-file p (read-config/rec p) #:formatter formatter)]
                  [(dir? p) (format-dir p (read-config/rec p) #:formatter formatter)]
                  [else (error "unknown error for path: ~v" p)]))]))
@@ -84,7 +84,7 @@
   (let loop ([path path]
              [rules rules])
     (for ([p (directory-list path #:build? #t)])
-      (cond [(not (file-or-directory-type p #f))
+      (cond [(not (path-exist? p))
              (error (format "path ~v does not exist." p))]
             [(and (file? p) (equal? #".rkt" (path-get-extension p)))
              (format-file p rules #:formatter formatter)]
