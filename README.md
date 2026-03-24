@@ -44,7 +44,8 @@ The biggest Racket file [class-internal.rkt](https://github.com/racket/racket/bl
 - [x] Fixes indentation
 - [x] Respects existing newlines
 - [x] Works on incorrect code
-- [x] Enforce single empty line at the end of file with `-n` cli option
+- [x] Enforces a trailing empty line at the end of file with `-n` or `--newline`
+- [x] Ensures at least one trailing newline at end of file with `--ensure-newline-eof`
 - [x] Enforces single spaces between tokens (with several exceptions)
 - [x] Raco integration
 - [x] Reads [scmindent](https://github.com/ds26gte/scmindent)-compatible configuration files
@@ -68,6 +69,8 @@ raco pkg install fixw
 raco fixw -h
 # read from stdin and print formatted text to stdout
 raco fixw
+# ensure the file ends with at least one newline
+raco fixw --ensure-newline-eof some-file.rkt
 # format all Racket files in current directory recursively
 raco fixw .
 ```

@@ -59,6 +59,10 @@
   (define (format-string/trailing str [rules #f])
     (fixw (open-input-string str) rules #:trailing-newline? #t))
 
+  ;; Test ensure-newline-eof behavior
+  (define (format-string/eof-newline str [rules #f])
+    (fixw (open-input-string str) rules #:ensure-newline-eof? #t))
+
   (check-equal?
     (format-string/trailing "(a)")
     "(a)\n\n"
@@ -73,6 +77,29 @@
     (format-string/trailing "(a)\n\n")
     "(a)\n\n"
     "Preserves empty line")
+
+  (check-equal?
+    (format-string/eof-newline "(a)")
+    "(a)\n"
+    "Adds one trailing newline if missing")
+
+  (check-equal?
+    (format-string/eof-newline "(a)\n")
+    "(a)\n"
+    "Preserves a single trailing newline")
+
+  (check-equal?
+    (format-string/eof-newline "(a)\n\n")
+    "(a)\n\n"
+    "Preserves multiple trailing newlines")
+
+  (check-equal?
+    (fixw (open-input-string "(a)")
+          #f
+          #:trailing-newline? #t
+          #:ensure-newline-eof? #t)
+    "(a)\n\n"
+    "Trailing empty line takes priority over ensure-newline-eof")
 
   ;; Test square brackets behavior
   (check-equal?

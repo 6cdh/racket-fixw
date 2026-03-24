@@ -16,6 +16,7 @@
 (define (cli-main)
   (define time-mode? (make-parameter #f))
   (define trailing-newline? (make-parameter #f))
+  (define ensure-newline-eof? (make-parameter #f))
   (define paths
     (command-line
       #:program "fixw"
@@ -24,6 +25,9 @@
        (time-mode? #t)]
       [("-n" "--newline") "ensure a trailing empty line"
        (trailing-newline? #t)]
+      [("--ensure-newline-eof")
+       "ensure the file ends with at least one newline"
+       (ensure-newline-eof? #t)]
       #:args files-or-dirs
       files-or-dirs))
 
@@ -31,13 +35,14 @@
     (lambda (in rules)
       (fixw in rules
             #:interactive? #f
-            #:trailing-newline? (trailing-newline?))))
+            #:trailing-newline? (trailing-newline?)
+            #:ensure-newline-eof? (ensure-newline-eof?))))
 
   (cond [(time-mode?) (time (run/user paths #:formatter formatter))]
         [else (run/user paths #:formatter formatter)]))
 
 (define (path-exist? path)
-  (or (file-exists? path) 
+  (or (file-exists? path)
       (directory-exists? path)
       (link-exists? path)))
 

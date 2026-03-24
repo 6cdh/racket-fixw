@@ -49,6 +49,7 @@ It accepts the following flags:
 @itemlist[
     @item{@Flag{t} --- Use @racket[time] to time the entire formatting process and output the result.}
     @item{@Flag{n} or @DFlag{newline} --- Enforce a trailing empty line (two newlines) at the end of the file.}
+    @item{@DFlag{ensure-newline-eof} --- Ensure the file ends with at least one newline while preserving any existing trailing empty lines. If used together with @Flag{n} or @DFlag{newline}, the trailing-empty-line option takes priority.}
 ]
 
 @section{API}
@@ -56,7 +57,8 @@ It accepts the following flags:
 @defproc[(fixw [in input-port?]
                [rules (or/c (hash/c string? integer?) #f)]
                [#:interactive? interactive? boolean? #f]
-               [#:trailing-newline? boolean? #f])
+               [#:trailing-newline? trailing-newline? boolean? #f]
+               [#:ensure-newline-eof? ensure-newline-eof? boolean? #f])
                string?]{
     Reads from @racket[in] using user-defined rules @racket[rules], and returns the formatted string.
 
@@ -65,6 +67,8 @@ It accepts the following flags:
     during editing.
 
     If @racket[#:trailing-newline?] is @racket[#t], a trailing empty line (two newlines) is enforced at the end of the file.
+    Otherwise, if @racket[#:ensure-newline-eof?] is @racket[#t], @racket[fixw] ensures that the file
+    ends with at least one newline while preserving existing trailing empty lines.
     Otherwise, @racket[fixw] preserves existing trailing empty lines.
 
     The built-in rules are always used.
@@ -91,7 +95,7 @@ You might want to know what fixw exactly does with your code:
 @itemlist[
     @item{Runs a lexer on the code, removing whitespace (except newlines) unless in @literal{(fixw off)} disabled region.}
     @item{Regenerates the code, adding whitespace between tokens (with exceptions) and indenting tokens that follow a @racket[#\newline].}
-    @item{Preserves trailing empty lines (use @racket[fixw/trailing-newline] to enforce a single trailing newline).}
+    @item{Preserves trailing empty lines by default. Use @racket[#:ensure-newline-eof?] to require at least one final newline, or @racket[#:trailing-newline?] to enforce a trailing empty line.}
 ]
 
 Any other behavior should be considered a bug.
