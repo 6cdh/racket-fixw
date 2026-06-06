@@ -6,6 +6,7 @@
          cli-main)
 
 (require "private/api.rkt"
+         "private/rules.rkt"
          racket/port
          racket/path
          racket/match
@@ -69,7 +70,8 @@
 
   (directory-exists? path))
 
-(define rules? (hash/c string? natural-number/c))
+(define (symbol-list? v)
+  (and (list? v) (andmap symbol? v)))
 
 (define/contract (format-file path rules #:formatter [formatter fixw])
   (->* ((or/c path? path-string?) (or/c rules? #f)) (#:formatter procedure?) void?)
@@ -132,21 +134,18 @@
       (for/fold ([rules (hash)])
                 ([r (in-port read in)])
         (match r
-          [(list sym num)
-           #:when (and (symbol? sym) (exact-nonnegative-integer? num))
-           (hash-set rules (symbol->string sym) num)]
-          [(list num sym)
-           #:when (and (symbol? sym) (exact-nonnegative-integer? num))
-           (hash-set rules (symbol->string sym) num)]
-          [(list sym-lst num)
-           #:when (and (list? sym-lst) (andmap symbol? sym-lst) (exact-nonnegative-integer? num))
+          [(list (? symbol? sym) (? rule? rule))
+           (hash-set rules (symbol->string sym) rule)]
+          [(list (? rule? rule) (? symbol? sym))
+           (hash-set rules (symbol->string sym) rule)]
+          [(list (? symbol-list? sym-lst) (? rule? rule))
            (for/fold ([rules rules])
                      ([sym sym-lst])
-             (hash-set rules (symbol->string sym) num))]
-          [(list num sym-lst ...)
-           #:when (and (list? sym-lst) (andmap symbol? sym-lst) (exact-nonnegative-integer? num))
+             (hash-set rules (symbol->string sym) rule))]
+          [(list (? rule? rule) sym-lst ...)
+           #:when (symbol-list? sym-lst)
            (for/fold ([rules rules])
                      ([sym sym-lst])
-             (hash-set rules (symbol->string sym) num))]
+             (hash-set rules (symbol->string sym) rule))]
           [text (error (format "error rule ~v\n in path ~v" text file-path))])))))
 

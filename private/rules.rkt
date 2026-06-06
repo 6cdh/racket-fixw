@@ -1,13 +1,21 @@
 #lang racket/base
 
 (provide rule/racket
-         add-rule)
+         add-rule
+         rule?
+         rules?)
 
-(require racket/list)
+(require racket/list
+         racket/contract)
 
 (define (add-rule rules)
   (for/hash ([r rules])
     (values (symbol->string (first r)) (second r))))
+
+(define (rule? v)
+  (or (eq? v #f) (exact-nonnegative-integer? v)))
+
+(define rules? (hash/c string? rule?))
 
 (define rule/racket
   '(;; 3.1 Modules

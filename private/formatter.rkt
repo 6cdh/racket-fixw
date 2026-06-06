@@ -48,7 +48,8 @@
 (define (hit-rule? rules head arg)
   (and head
        (hash-has-key? rules (Token-text head))
-       (> arg (hash-ref rules (Token-text head)))))
+       (let ([r (hash-ref rules (Token-text head))])
+         (and (exact-nonnegative-integer? r) (> arg r)))))
 
 (define (list-literal? head opener)
   (or (and head

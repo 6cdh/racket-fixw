@@ -55,7 +55,7 @@ It accepts the following flags:
 @section{API}
 
 @defproc[(fixw [in input-port?]
-               [rules (or/c (hash/c string? integer?) #f)]
+               [rules (or/c (hash/c string? (or/c #f natural-number/c)) #f)]
                [#:interactive? interactive? boolean? #f]
                [#:trailing-newline? trailing-newline? boolean? #f]
                [#:ensure-newline-eof? ensure-newline-eof? boolean? #f])
@@ -75,7 +75,7 @@ It accepts the following flags:
 }
 
 @defproc[(fixw/lines [in input-port?]
-                     [rules (or/c (hash/c string? integer?) #f)]
+                     [rules (or/c (hash/c string? (or/c #f natural-number/c)) #f)]
                      [start exact-nonnegative-integer? 0]
                      [end exact-nonnegative-integer? (length (port->lines in))]
                      [#:interactive? interactive? boolean? #f])
@@ -193,8 +193,31 @@ fixw supports reading user-defined rules from a @filepath{.lispwords} configurat
 ((define lambda) 1)
 ]
 
-When formatting a file, fixw attempts to read the @filepath{.lispwords} file in the same directory.
-If not found, it checks the parent directory, continuing up to the root directory.
+The rule value is a non-negative integer specifying the number of special (aligned) arguments,
+or @racket[#f] to explicitly use procedure indentation. This is useful for overriding an builtin rule:
+
+@racketblock[
+(my-proc #f)
+]
+
+When formatting a file, fixw walks up from the file's directory to the root, collecting every
+@filepath{.lispwords} it finds along the way. The files are then merged in reverse order:
+a rule in a nearer directory overrides the same rule in a parent directory.
+
+For example, given this directory layout:
+
+@racketblock[
+/project/.lispwords           @code:comment{contains (my-macro 1)}
+/project/src/.lispwords       @code:comment{contains (my-macro 2)}
+/project/src/foo.rkt          @code:comment{the file being formatted}
+]
+
+When formatting @filepath{foo.rkt}, the effective rules are:
+
+@itemlist[
+  @item{@racket[(my-macro 2)] - from @filepath{src/.lispwords}, overrides the parent value of @racket[1].}
+  @item{Any other rules defined only in @filepath{/project/.lispwords} are also included.}
+]
 
 The built-in rules are always used. User-defined rules override them.
 
